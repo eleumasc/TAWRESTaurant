@@ -8,39 +8,24 @@ export type CreateOrderForm = {
   seats: Number;
 };
 
-export enum ChangeStatus {
-  Occupy = "occupy",
-  Free = "free"
+export enum ChangeOrderStatus {
+  Assign = "assign",
+  Notify = "notify"
 }
 
-export function isCreateOrderForm(arg: any): arg is CreateOrderForm {
+export function isCreateOrderForm(req: any): req is CreateOrderForm {
   return (
-    arg &&
-    arg.kind &&
-    typeof arg.kind === "string" &&
-    isOrderKind(arg.kind) &&
-    ((arg.kind === OrderKind.BeverageOrder && ObjectId.isValid(arg.beverage)) ||
-      (arg.kind === OrderKind.FoodOrder && ObjectId.isValid(arg.food)))
+    req.body &&
+    req.body.kind &&
+    typeof req.body.kind === "string" &&
+    isOrderKind(req.body.kind) &&
+    ((req.body.kind === OrderKind.BeverageOrder &&
+      ObjectId.isValid(req.body.beverage)) ||
+      (req.body.kind === OrderKind.FoodOrder &&
+        ObjectId.isValid(req.body.food)))
   );
 }
 
-export function isChangeStatusRequest(arg: any): boolean {
-  const { query, user } = arg;
-  return (
-    arg &&
-    query.action &&
-    enumHasValue(ChangeStatus, query.action) &&
-    /*
-    middleware verifies that only Cashiers and Waiter can access the endpoint that uses this function
-    user.role &&
-    enumHasValue(user.role, UserRole) &&
-    */
-    ((query.customers &&
-      typeof query.customers === "string" &&
-      !isNaN(query.customers) &&
-      parseInt(query.customers) > 0 &&
-      user.role === UserRole.Waiter &&
-      query.action === ChangeStatus.Occupy) ||
-      (user.role === UserRole.Cashier && query.action === ChangeStatus.Free))
-  );
+export function isChangeOrderStatus(req: any): boolean {
+  return enumHasValue(ChangeOrderStatus, req.query.action);
 }

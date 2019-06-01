@@ -8,19 +8,19 @@ export type CreateUserForm = {
   password: String;
 };
 
-export function isCreateUserForm(arg: any): arg is CreateUserForm {
+export function isCreateUserForm(req: any): req is CreateUserForm {
   return (
-    arg &&
-    arg.username &&
-    typeof arg.username === "string" &&
-    arg.name &&
-    typeof arg.name === "string" &&
-    arg.surname &&
-    typeof arg.surname === "string" &&
-    arg.role &&
-    isUserRole(arg.role) &&
-    arg.password &&
-    typeof arg.password === "string"
+    req.body &&
+    req.body.username &&
+    typeof req.body.username === "string" &&
+    req.body.name &&
+    typeof req.body.name === "string" &&
+    req.body.surname &&
+    typeof req.body.surname === "string" &&
+    req.body.role &&
+    isUserRole(req.body.role) &&
+    req.body.password &&
+    typeof req.body.password === "string"
   );
 }
 
@@ -28,6 +28,6 @@ export type ChangePasswordForm = {
   password: string;
 };
 
-export function isChangePasswordForm(arg: any): arg is ChangePasswordForm {
-  return arg && arg.password && typeof arg.password === "string";
+export function isChangePassword(req: any): req is ChangePasswordForm {
+  return req.body && req.body.password && typeof req.body.password === "string";
 }

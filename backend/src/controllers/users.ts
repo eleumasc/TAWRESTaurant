@@ -12,21 +12,23 @@ import {
   TableModel
 } from "../models";
 import { UserRole, isUserRole, User } from "../models/user";
-import { isCreateUserForm, isChangePasswordForm } from "../models/forms/user";
+import { isCreateUserForm, isChangePassword } from "../models/forms/user";
 import { Route } from ".";
 import { addParams } from "../middlewares/addParams";
-import { setQueryRole, setBodyRole } from "../middlewares/setRole";
+import { setQuery } from "../middlewares/setQuery";
+import { setBody } from "../middlewares/setBody";
+import { checkRequest } from "../middlewares/checkRequest";
 
 const barmans: Route = {
   path: "/barmans",
   subRoutes: [
     {
-      path: "/byId/:id/orders",
-      middlewares: [addParams("id", "id")],
+      path: "/byId/:idU/orders",
+      middlewares: [addParams("idU", "idU")],
       GET: {
         callback: (req, res) => {
-          let id = req.urlParams.id;
-          BeverageOrderModel.find({ barman: id }).then(orders => {
+          let idU = req.urlParams.idU;
+          BeverageOrderModel.find({ barman: idU }).then(orders => {
             res.json(orders);
           });
         }
@@ -34,13 +36,14 @@ const barmans: Route = {
     }
   ],
   GET: {
-    middlewares: [setQueryRole(UserRole.Barman)],
+    middlewares: [setQuery(["role"], [UserRole.Barman])],
     callback: getUsers
   },
   POST: {
     middlewares: [
       userHasRole([UserRole.Cashier]),
-      setBodyRole(UserRole.Barman)
+      setBody(["role"], [UserRole.Barman]),
+      checkRequest(isCreateUserForm)
     ],
     callback: postUser
   }
@@ -49,13 +52,14 @@ const barmans: Route = {
 const cashiers: Route = {
   path: "/cashiers",
   GET: {
-    middlewares: [setQueryRole(UserRole.Cashier)],
+    middlewares: [setQuery(["role"], [UserRole.Cashier])],
     callback: getUsers
   },
   POST: {
     middlewares: [
       userHasRole([UserRole.Cashier]),
-      setBodyRole(UserRole.Cashier)
+      setBody(["role"], [UserRole.Cashier]),
+      checkRequest(isCreateUserForm)
     ],
     callback: postUser
   }
@@ -65,12 +69,12 @@ const cooks: Route = {
   path: "/cooks",
   subRoutes: [
     {
-      path: "/byId/:id/orders",
-      middlewares: [addParams("id", "id")],
+      path: "/byId/:idU/orders",
+      middlewares: [addParams("idU", "idU")],
       GET: {
         callback: (req, res) => {
-          let id = req.urlParams.id;
-          FoodOrderModel.find({ cook: id }).then(orders => {
+          let idU = req.urlParams.idU;
+          FoodOrderModel.find({ cook: idU }).then(orders => {
             res.json(orders);
           });
         }
@@ -78,11 +82,15 @@ const cooks: Route = {
     }
   ],
   GET: {
-    middlewares: [setQueryRole(UserRole.Cook)],
+    middlewares: [setQuery(["role"], [UserRole.Cook])],
     callback: getUsers
   },
   POST: {
-    middlewares: [userHasRole([UserRole.Cashier]), setBodyRole(UserRole.Cook)],
+    middlewares: [
+      userHasRole([UserRole.Cashier]),
+      setBody(["role"], [UserRole.Cook]),
+      checkRequest(isCreateUserForm)
+    ],
     callback: postUser
   }
 };
@@ -91,12 +99,12 @@ const waiters: Route = {
   path: "/waiters",
   subRoutes: [
     {
-      path: "/byId/:id/tables",
+      path: "/byId/:idU/tables",
       GET: {
-        middlewares: [addParams("id", "id")],
+        middlewares: [addParams("idU", "idU")],
         callback: (req, res) => {
-          let id = req.urlParams.id;
-          TableModel.find({ servedBy: id }).then(tables => {
+          let idU = req.urlParams.idU;
+          TableModel.find({ servedBy: idU }).then(tables => {
             res.json(tables);
           });
         }
@@ -104,13 +112,14 @@ const waiters: Route = {
     }
   ],
   GET: {
-    middlewares: [setQueryRole(UserRole.Waiter)],
+    middlewares: [setQuery(["role"], [UserRole.Waiter])],
     callback: getUsers
   },
   POST: {
     middlewares: [
       userHasRole([UserRole.Cashier]),
-      setBodyRole(UserRole.Waiter)
+      setBody(["role"], [UserRole.Waiter]),
+      checkRequest(isCreateUserForm)
     ],
     callback: postUser
   }
@@ -121,18 +130,21 @@ const users: Route = {
   middlewares: [jwtAuth],
   subRoutes: [
     {
-      path: "/byId/:id",
-      middlewares: [addParams("id", "id")],
+      path: "/byId/:idU",
+      middlewares: [addParams("idU", "idU")],
       subRoutes: [
         {
           path: "/password",
           PUT: {
-            middlewares: [userHasRole([UserRole.Cashier])],
+            middlewares: [
+              userHasRole([UserRole.Cashier]),
+              checkRequest(isChangePassword)
+            ],
             callback: changePassword
           }
         }
       ],
-      GET: { callback: getUserById },
+      GET: { callback: getUser },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
         callback: deleteUser
@@ -143,44 +155,28 @@ const users: Route = {
     cooks,
     waiters
   ],
-  GET: { callback: getUsers },
-  POST: { middlewares: [userHasRole([UserRole.Cashier])], callback: postUser }
+  GET: { callback: getUsers }
 };
 
 function getUsers(req, res, next) {
-  const filter = {};
-  if (req.query.role) {
-    filter["role"] = isUserRole(req.query.role) ? req.query.role : "";
-  }
+  const filter: any = {};
+  if (req.query.role) filter.role = req.query.role;
   UserModel.find(filter)
-    .then(users => {
-      return res.json(users);
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(users => res.json(users))
+    .catch(err => next(err));
 }
 
-function getUserById(req, res, next) {
-  UserModel.findOne({ _id: req.urlParams.id })
+function getUser(req, res, next) {
+  UserModel.findOne({ _id: req.urlParams.idU })
     .then(user => {
-      if (!user) {
-        return res.status(404).json(error("User not found"));
-      }
+      if (!user) return res.status(404).json(error("User not found"));
       return res.json(user);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function postUser(req, res, next) {
-  if (!isCreateUserForm(req.body)) {
-    return res.status(400).json(error("Bad request"));
-  }
-
   let user: User;
-
   switch (req.body.role) {
     case UserRole.Barman:
       user = new BarmanModel(req.body);
@@ -197,56 +193,34 @@ function postUser(req, res, next) {
   user.setPassword(req.body.password);
   user
     .save()
-    .then(() => {
-      return res.json(user);
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(() => res.json(user))
+    .catch(err => next(err));
 }
 
 function changePassword(req, res, next) {
-  if (!isChangePasswordForm(req.body)) {
-    return res.status(400).json(error("Bad request"));
-  }
-
-  UserModel.findById(req.urlParams.id)
+  UserModel.findOne({ _id: req.urlParams.idU })
     .then(user => {
-      if (!user) {
-        return res.status(404).json(error("User not found"));
-      }
+      if (!user) return res.status(404).json(error("User not found"));
       user.setPassword(req.body.password);
       user
         .save()
-        .then(() => {
-          return res.send();
-        })
-        .catch(err => {
-          return next(err);
-        });
+        .then(() => res.send())
+        .catch(err => next(err));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function deleteUser(req, res, next) {
-  UserModel.findById(req.urlParams.id)
+  UserModel.findOne({ _id: req.urlParams.idU })
     .then(user => {
       if (!user) {
         return res.status(404).json(error("User not found"));
       }
-      UserModel.deleteOne({ _id: req.urlParams.id })
-        .then(() => {
-          return res.send();
-        })
-        .catch(err => {
-          return next(err);
-        });
+      UserModel.deleteOne({ _id: req.urlParams.idU })
+        .then(() => res.send())
+        .catch(err => next(err));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 export default users;

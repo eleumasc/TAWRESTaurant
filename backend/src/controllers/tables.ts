@@ -1,7 +1,7 @@
 import { jwtAuth } from "../middlewares/jwtAuth";
 import { userHasRole } from "../middlewares/userHasRole";
 import { error } from "../helpers/error";
-import { TableModel } from "../models";
+import { TableModel, OrderModel } from "../models";
 import { UserRole } from "../models/user";
 import {
   isCreateTableForm,
@@ -15,17 +15,21 @@ import { Route } from ".";
 import { addParams } from "../middlewares/addParams";
 import { tableByIdOrders as tableByIdOrdersRoute } from "./orders";
 import { io } from "../server";
+import { checkRequest } from "../middlewares/checkRequest";
 
 export const tables: Route = {
   path: "/tables",
   middlewares: [jwtAuth],
   subRoutes: [
     {
-      path: "/byId/:id",
-      middlewares: [addParams("id")],
+      path: "/byId/:idT",
+      middlewares: [addParams("idT")],
       subRoutes: [tableByIdOrdersRoute],
-      GET: { callback: getTableById },
-      PUT: { callback: putChangeStatus },
+      GET: { callback: getTable },
+      PUT: {
+        middlewares: [checkRequest(isOccupyFreeRequest)],
+        callback: putChangeTableStatus
+      },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
         callback: deleteTable
@@ -34,7 +38,10 @@ export const tables: Route = {
   ],
   GET: { callback: getTables },
   POST: {
-    middlewares: [userHasRole([UserRole.Cashier])],
+    middlewares: [
+      userHasRole([UserRole.Cashier]),
+      checkRequest(isCreateTableForm)
+    ],
     callback: createTable
   }
 };
@@ -47,124 +54,97 @@ function getTables(req, res, next) {
     foodOrdersStatus,
     beverageOrdersStatus
   } = req.query;
-  const filter = {};
-  if (seats) {
-    filter["seats"] = { $gte: parseInt(seats) };
-  }
-  if (status && isTableStatus(status)) {
-    filter["status"] = status;
-  }
-  if (servedById && ObjectId.isValid(servedById)) {
-    filter["servedBy"] = servedById;
-  }
-  if (foodOrdersStatus && isOrderStatus(foodOrdersStatus)) {
-    filter["foodOrdersStatus"] = servedById;
-  }
-  if (beverageOrdersStatus && isOrderStatus(beverageOrdersStatus)) {
-    filter["beverageOrdersStatus"] = servedById;
-  }
-
+  const filter: any = {};
+  if (seats) filter.seats = { $gte: parseInt(seats) };
+  if (status && isTableStatus(status)) filter.status = status;
+  if (servedById && ObjectId.isValid(servedById)) filter.servedBy = servedById;
+  if (foodOrdersStatus && isOrderStatus(foodOrdersStatus))
+    filter.foodOrdersStatus = servedById;
+  if (beverageOrdersStatus && isOrderStatus(beverageOrdersStatus))
+    filter.beverageOrdersStatus = servedById;
   TableModel.find(filter)
-    .then(tables => {
-      return res.json(tables);
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(tables => res.json(tables))
+    .catch(err => next(err));
 }
 
-function getTableById(req, res, next) {
-  TableModel.findOne({ _id: req.urlParams.id })
+function getTable(req, res, next) {
+  TableModel.findOne({ _id: req.urlParams.idT })
     .then(table => {
-      if (!table) {
-        return res.status(404).json(error("Table not found"));
-      }
+      if (!table) return res.status(404).json(error("Table not found"));
       return res.json(table);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function createTable(req, res, next) {
-  if (!isCreateTableForm(req.body)) {
-    return res.status(400).json(error("Bad request"));
-  }
-
   let table: Table;
   table = new TableModel(req.body);
   table
     .save()
-    .then(() => {
-      return res.json(table);
-    })
-    .catch(err => {
-      return next(err);
-    });
+    .then(() => res.json(table))
+    .catch(err => next(err));
 }
 
-function putChangeStatus(req, res, next) {
-  io.to("waiters").emit("test", { ciao: "a te da tables" });
-  console.log(typeof req.query.customers);
-  if (!isOccupyFreeRequest(req)) {
-    return res.status(400).json(error("Bad request"));
-  }
-
-  TableModel.findOne({ _id: req.urlParams.id })
+function putChangeTableStatus(req, res, next) {
+  TableModel.findOne({ _id: req.urlParams.idT })
     .then((table: Table) => {
-      if (!table) {
-        return res.status(404).json(error("Table not found"));
-      }
-      if (req.query.action === ChangeStatus.Occupy) {
-        table.status = TableStatus.NotServed;
-        table.numOfCustomers = parseInt(req.query.customers);
-      } else {
-        table.status = TableStatus.Free;
-        table.numOfCustomers = 0;
-        table.servedBy = null;
-        table.orders = null;
-        table.ordersTakenAt = null;
-        table.foodOrdersStatus = null;
-        table.beverageOrdersStatus = null;
-      }
+      if (!table) return res.status(404).json(error("Table not found"));
+      if (req.query.action === ChangeStatus.Occupy)
+        occupyTable(table, req, res, next);
+      if (req.query.action === ChangeStatus.Free)
+        freeTable(table, req, res, next);
+    })
+    .catch(err => next(err));
+}
+
+function occupyTable(table, req, res, next) {
+  if (table.numOfCustomers < req.body.numOfCustomers)
+    return res.status(400).json(error("Not enough seats"));
+  if (table.status !== TableStatus.Free)
+    return res.status(400).json(error("Table is already occupied"));
+  table.status = TableStatus.NotServed;
+  table.numOfCustomers = req.body.numOfCustomers;
+  table.servedBy = req.user._id;
+  table
+    .save()
+    .then(() => {
+      io.emit("table status changed", table);
+      return res.send();
+    })
+    .catch(err => next(err));
+}
+
+function freeTable(table, req, res, next) {
+  if (table.status === TableStatus.Free)
+    return res.status(400).json(error("Table is already free"));
+  OrderModel.deleteMany({ table: table._id })
+    .then(() => {
+      table.status = TableStatus.Free;
+      table.numOfCustomers = 0;
+      table.servedBy = null;
+      table.ordersTakenAt = null;
+      table.foodOrdersStatus = null;
+      table.beverageOrdersStatus = null;
       table
         .save()
         .then(() => {
-          if (table.status === TableStatus.NotServed) {
-            io.to("waiters").emit("test", { ciao: "a te da tables occupy" });
-            io.to(UserRole.Cashier).emit("table is occupied", table);
-            io.to(UserRole.Waiter).emit("table is occupied", table);
-          } else {
-            io.to("waiters").emit("test", { ciao: "a te da tables free" });
-            io.to(UserRole.Cashier).emit("table is free", table);
-            io.to(UserRole.Waiter).emit("table is free", table);
-          }
-          return res.send();
+          io.emit("table status changed", table);
+          res.send();
         })
-        .catch(err => {
-          return next(err);
-        });
+        .catch(err => next(err));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }
 
 function deleteTable(req, res, next) {
-  TableModel.findOne({ _id: req.urlParams.id })
+  TableModel.findOne({ _id: req.urlParams.idT })
     .then(table => {
       if (!table) {
         return res.status(404).json(error("Table not found"));
       }
-      TableModel.deleteOne({ _id: req.urlParams.id })
-        .then(() => {
-          return res.send();
-        })
-        .catch(err => {
-          return next(err);
-        });
+      TableModel.deleteOne({ _id: req.urlParams.idT })
+        .then(() => res.send())
+        .catch(err => next(err));
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(err => next(err));
 }

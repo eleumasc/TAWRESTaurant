@@ -1,27 +1,26 @@
 import mongoose = require("mongoose");
 import { enumHasValue } from "../helpers/enumHasValue";
 import { UserRole, Waiter } from "./user";
-import { Order } from "./order";
 
 export enum TableStatus {
-  Free = "free",
-  NotServed = "not-served",
-  Waiting = "waiting",
-  Served = "served"
+  Free = "free", //no customers
+  NotServed = "not-served", //customers but no orders taken
+  Waiting = "waiting", //orders taken, but not served to the table
+  Served = "served" //all orders served to the table
 }
 
 export function isTableStatus(arg: any): arg is TableStatus {
   return arg && typeof arg === "string" && enumHasValue(TableStatus, arg);
 }
 
-export enum TableOrdersStatus {
-  Pending = "pending",
-  Ready = "ready",
-  Served = "served"
+export enum TableOrderStatus {
+  Pending = "pending", //orders committed to the cooks, barmans
+  Ready = "ready", //orders ready to be served
+  Served = "served" //orders served to the table
 }
 
-export function isTableOrderStatus(arg: any): arg is TableStatus {
-  return arg && typeof arg === "string" && enumHasValue(TableOrdersStatus, arg);
+export function isTableOrderStatus(arg: any): arg is TableOrderStatus {
+  return arg && typeof arg === "string" && enumHasValue(TableOrderStatus, arg);
 }
 
 export type Table = mongoose.Document & {
@@ -31,11 +30,10 @@ export type Table = mongoose.Document & {
   status: TableStatus;
   numOfCustomers: number;
   servedBy: Waiter;
-  orders: Order[];
   ordersTakenAt: Date;
-  foodOrdersStatus: TableOrdersStatus;
+  foodOrdersStatus: TableOrderStatus;
   foodsReadyAt: Date;
-  beverageOrdersStatus: TableOrdersStatus;
+  beverageOrdersStatus: TableOrderStatus;
   beveragesReadyAt: Date;
 };
 
@@ -55,12 +53,6 @@ export const tableSchema: mongoose.Schema<Table> = new mongoose.Schema({
   servedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: UserRole.Waiter,
-    required: false,
-    default: null
-  },
-  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
-  ordersTakenAt: {
-    type: mongoose.Schema.Types.Date,
     required: false,
     default: null
   },
