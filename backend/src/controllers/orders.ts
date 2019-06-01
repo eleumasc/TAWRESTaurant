@@ -130,23 +130,32 @@ function putTableOrder(req, res, next) {
 }
 
 function assignOrder(order, req, res, next) {
-  order.status = OrderStatus.Preparing;
-  order[req.user.role.toLowerCase()] = req.user._id;
-  order
-    .save()
-    .then(() => {
-      if (order.status === OrderStatus.Ready) {
-        io.to(UserRole.Waiter).emit("order is ready", order);
-        OrderModel.countDocuments({
-          table: order.table,
-          status: { $not: OrderStatus.Ready }
-        }); //TODO
-      } else {
-        io.to(req.user.role).emit("order is preparing", order);
-      }
-      res.json(order);
-    })
-    .catch(err => next(err));
+  let filter: any = { status: OrderStatus.Preparing };
+  if (req.user.role === UserRole.Cook) filter.cook = req.user._id;
+  else filter.beverage = req.user._id;
+  OrderModel.countDocuments(filter).then(count => {
+    if (count > 0)
+      return res
+        .status(403)
+        .json(error(req.user.role + " has already an order assigned"));
+    order.status = OrderStatus.Preparing;
+    order[req.user.role.toLowerCase()] = req.user._id;
+    order
+      .save()
+      .then(() => {
+        if (order.status === OrderStatus.Ready) {
+          io.to(UserRole.Waiter).emit("order is ready", order);
+          OrderModel.countDocuments({
+            table: order.table,
+            status: { $not: OrderStatus.Ready }
+          }); //TODO
+        } else {
+          io.to(req.user.role).emit("order is preparing", order);
+        }
+        res.json(order);
+      })
+      .catch(err => next(err));
+  });
 }
 
 function notifyOrder(order, req, res, next) {

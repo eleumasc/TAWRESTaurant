@@ -11,7 +11,7 @@ import {
   FoodOrderModel,
   TableModel
 } from "../models";
-import { UserRole, isUserRole, User } from "../models/user";
+import { UserRole, User } from "../models/user";
 import { isCreateUserForm, isChangePassword } from "../models/forms/user";
 import { Route } from ".";
 import { addParams } from "../middlewares/addParams";
@@ -24,13 +24,14 @@ const barmans: Route = {
   subRoutes: [
     {
       path: "/byId/:idU/orders",
-      middlewares: [addParams("idU", "idU")],
+      middlewares: [addParams("idU")],
       GET: {
-        callback: (req, res) => {
-          let idU = req.urlParams.idU;
-          BeverageOrderModel.find({ barman: idU }).then(orders => {
-            res.json(orders);
-          });
+        callback: (req, res, next) => {
+          let filter: any = { barman: req.urlParams.idU };
+          if (req.query.status) filter.status = req.query.status;
+          BeverageOrderModel.find(filter)
+            .then(orders => res.json(orders))
+            .catch(err => next(err));
         }
       }
     }
@@ -70,13 +71,14 @@ const cooks: Route = {
   subRoutes: [
     {
       path: "/byId/:idU/orders",
-      middlewares: [addParams("idU", "idU")],
+      middlewares: [addParams("idU")],
       GET: {
-        callback: (req, res) => {
-          let idU = req.urlParams.idU;
-          FoodOrderModel.find({ cook: idU }).then(orders => {
-            res.json(orders);
-          });
+        callback: (req, res, next) => {
+          let filter: any = { barman: req.urlParams.idU };
+          if (req.query.status) filter.status = req.query.status;
+          FoodOrderModel.find(filter)
+            .then(orders => res.json(orders))
+            .catch(err => next(err));
         }
       }
     }
