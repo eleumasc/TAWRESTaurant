@@ -16,8 +16,8 @@ export const menu: Route = {
   middlewares: [jwtAuth],
   subRoutes: [
     {
-      path: "/byId/:id",
-      middlewares: [addParams("id")],
+      path: "/byId/:idM",
+      middlewares: [addParams("idM")],
       GET: { callback: getMenuItemById },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
@@ -62,7 +62,7 @@ function getMenuItems(req, res, next) {
 }
 
 function getMenuItemById(req, res, next) {
-  MenuItemModel.findOne({ _id: req.params.id })
+  MenuItemModel.findOne({ _id: req.params.idM })
     .then(menuItem => {
       if (!menuItem) {
         return res.status(404).json(error("MenuItem not found"));
@@ -94,7 +94,7 @@ function putMenuItem(req, res, next) {
   if (!isChangeMenuItemForm(req.body)) {
     return res.status(400).json(error("Bad request"));
   }
-  MenuItemModel.findOne({ _id: req.params.id })
+  MenuItemModel.findOne({ _id: req.params.idM })
     .then((menuItem: MenuItem) => {
       if (!menuItem) {
         return res.status(404).json(error("MenuItem not found"));
@@ -119,12 +119,12 @@ function putMenuItem(req, res, next) {
 }
 
 function deleteMenuItem(req, res, next) {
-  MenuItemModel.findOne({ _id: req.params.id })
+  MenuItemModel.findOne({ _id: req.params.idM })
     .then(menuItem => {
       if (!menuItem) {
         return res.status(404).json(error("MenuItem not found"));
       }
-      MenuItemModel.deleteOne({ _id: req.params.id })
+      MenuItemModel.deleteOne({ _id: req.params.idM })
         .then(() => {
           return res.send();
         })
