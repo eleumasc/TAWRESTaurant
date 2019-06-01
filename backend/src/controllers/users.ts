@@ -103,7 +103,7 @@ const waiters: Route = {
     {
       path: "/byId/:idU/tables",
       GET: {
-        middlewares: [addParams("idU", "idU")],
+        middlewares: [addParams("idU")],
         callback: (req, res) => {
           let idU = req.urlParams.idU;
           TableModel.find({ servedBy: idU }).then(tables => {
@@ -133,7 +133,7 @@ const users: Route = {
   subRoutes: [
     {
       path: "/byId/:idU",
-      middlewares: [addParams("idU", "idU")],
+      middlewares: [addParams("idU")],
       subRoutes: [
         {
           path: "/password",
