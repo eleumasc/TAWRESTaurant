@@ -76,6 +76,12 @@ function getTable(req, res, next) {
     .catch(err => next(err));
 }
 
+/*async function getTable(req, res, next) {
+  let table: Table = await TableModel.findOne({ _id: req.urlParams.idT });
+  if (!table) return res.status(404).json(error("Table not found"));
+  return res.json(table);
+}*/
+
 function createTable(req, res, next) {
   let table: Table;
   table = new TableModel(req.body);
@@ -84,6 +90,12 @@ function createTable(req, res, next) {
     .then(() => res.json(table))
     .catch(err => next(err));
 }
+
+/*async function createTable(req, res, next) {
+  let table: Table = new TableModel(req.body);
+  await table.save();
+  res.json(table);
+}*/
 
 function putChangeTableStatus(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
@@ -98,7 +110,7 @@ function putChangeTableStatus(req, res, next) {
 }
 
 function occupyTable(table, req, res, next) {
-  if (table.numOfCustomers < req.body.numOfCustomers)
+  if (table.seats < req.body.numOfCustomers)
     return res.status(400).json(error("Not enough seats"));
   if (table.status !== TableStatus.Free)
     return res.status(400).json(error("Table is already occupied"));
@@ -148,3 +160,14 @@ function deleteTable(req, res, next) {
     })
     .catch(err => next(err));
 }
+
+/*async function deleteTable(req, res, next) {
+  let table: Table = await TableModel.findOne({
+    _id: req.urlParams.idT
+  }).then();
+  if (!table) {
+    return res.status(404).json(error("Table not found"));
+  }
+  await TableModel.deleteOne({ _id: req.urlParams.idT }).then();
+  res.send();
+}*/

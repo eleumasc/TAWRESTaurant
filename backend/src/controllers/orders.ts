@@ -1,3 +1,4 @@
+import mongoose = require("mongoose");
 import { Route } from ".";
 import {
   TableModel,
@@ -11,7 +12,6 @@ import { OrderStatus, OrderKind, Order } from "../models/order";
 import { UserRole } from "../models/user";
 import { addParams } from "../middlewares/addParams";
 import { io } from "../server";
-import { Socket } from "socket.io";
 import { setQuery } from "../middlewares/setQuery";
 import { setBody } from "../middlewares/setBody";
 import { userHasRole } from "../middlewares/userHasRole";
@@ -86,9 +86,9 @@ function getTableOrders(req, res, next) {
 function putTableCommitOrders(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then(table => {
-      if (!table) {
-        return res.status(404).json(error("Table not found"));
-      }
+      if (!table) return res.status(404).json(error("Table not found"));
+      if ((table.status = TableStatus.Waiting))
+        return res.status(400).json(error("Orders already taken"));
       table.status = TableStatus.Waiting;
       table.ordersTakenAt = new Date();
       table
@@ -118,22 +118,41 @@ function putTableOrder(req, res, next) {
     if (!order) return res.status(404).json(error("Order not found"));
     if (
       req.query.action === ChangeOrderStatus.Assign &&
+      order.status === OrderStatus.Pending &&
       ((req.user.role === UserRole.Cook &&
         order.kind === OrderKind.FoodOrder) ||
         (req.user.role === UserRole.Barman &&
           order.kind === OrderKind.BeverageOrder))
     )
-      assignOrder(order, req, res, next);
+      return assignOrder(order, req, res, next);
+    if (
+      req.query.action === ChangeOrderStatus.Notify &&
+      order.status === OrderStatus.Preparing
+    )
+      return notifyOrder(order, req, res, next);
+    if (
+      req.query.action === ChangeOrderStatus.Assign &&
+      order.status !== OrderStatus.Pending
+    )
+      return res.status(400).json(error("Order already assigned"));
     if (req.query.action === ChangeOrderStatus.Notify)
-      notifyOrder(order, req, res, next);
+      if (order.status === OrderStatus.Pending)
+        return res.status(400).json(error("Order not prepared"));
+      else return res.status(400).json(error("Order already notified"));
   });
 }
 
 function assignOrder(order, req, res, next) {
   let filter: any = { status: OrderStatus.Preparing };
-  if (req.user.role === UserRole.Cook) filter.cook = req.user._id;
-  else filter.beverage = req.user._id;
-  OrderModel.countDocuments(filter).then(count => {
+  let model: mongoose.Model<Order>;
+  if (req.user.role === UserRole.Cook) {
+    model = FoodOrderModel;
+    filter.cook = req.user._id;
+  } else {
+    model = BeverageOrderModel;
+    filter.barman = req.user._id;
+  }
+  model.countDocuments(filter).then(count => {
     if (count > 0)
       return res
         .status(403)
