@@ -32,8 +32,7 @@ export function isOccupyFreeRequest(req: any): boolean {
     ((body.numOfCustomers &&
       typeof body.numOfCustomers === "number" &&
       body.numOfCustomers > 0 &&
-      user.role === UserRole.Waiter &&
       query.action === ChangeStatus.Occupy) ||
-      (user.role === UserRole.Cashier && query.action === ChangeStatus.Free))
+      query.action === ChangeStatus.Free)
   );
 }

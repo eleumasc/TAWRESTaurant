@@ -16,6 +16,7 @@ import { addParams } from "../middlewares/addParams";
 import { tableByIdOrders as tableByIdOrdersRoute } from "./orders";
 import { io } from "../server";
 import { checkRequest } from "../middlewares/checkRequest";
+import { asyncWrap } from "../middlewares/asyncWrapper";
 
 export const tables: Route = {
   path: "/tables",
@@ -32,7 +33,7 @@ export const tables: Route = {
       },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
-        callback: deleteTable
+        callback: asyncWrap(deleteTable)
       }
     }
   ],
@@ -42,7 +43,7 @@ export const tables: Route = {
       userHasRole([UserRole.Cashier]),
       checkRequest(isCreateTableForm)
     ],
-    callback: createTable
+    callback: asyncWrap(createTable)
   }
 };
 
@@ -82,29 +83,46 @@ function getTable(req, res, next) {
   return res.json(table);
 }*/
 
-function createTable(req, res, next) {
+/*function createTable(req, res, next) {
   let table: Table;
   table = new TableModel(req.body);
   table
     .save()
     .then(() => res.json(table))
     .catch(err => next(err));
-}
+}*/
 
-/*async function createTable(req, res, next) {
+async function createTable(req, res, next) {
   let table: Table = new TableModel(req.body);
   await table.save();
   res.json(table);
-}*/
+}
 
 function putChangeTableStatus(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then((table: Table) => {
       if (!table) return res.status(404).json(error("Table not found"));
-      if (req.query.action === ChangeStatus.Occupy)
-        occupyTable(table, req, res, next);
-      if (req.query.action === ChangeStatus.Free)
-        freeTable(table, req, res, next);
+      if (
+        req.query.action === ChangeStatus.Occupy &&
+        req.user.role === UserRole.Waiter
+      )
+        return occupyTable(table, req, res, next);
+      if (
+        req.query.action === ChangeStatus.Free &&
+        req.user.role === UserRole.Cashier
+      )
+        return freeTable(table, req, res, next);
+      return res
+        .status(403)
+        .json(
+          error(
+            "Unauthorized, you must have the following role: " +
+              req.user.role ===
+              UserRole.Cashier
+              ? UserRole.Waiter
+              : UserRole.Cashier
+          )
+        );
     })
     .catch(err => next(err));
 }
@@ -148,7 +166,7 @@ function freeTable(table, req, res, next) {
     .catch(err => next(err));
 }
 
-function deleteTable(req, res, next) {
+/*function deleteTable(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then(table => {
       if (!table) {
@@ -159,9 +177,9 @@ function deleteTable(req, res, next) {
         .catch(err => next(err));
     })
     .catch(err => next(err));
-}
+}*/
 
-/*async function deleteTable(req, res, next) {
+async function deleteTable(req, res, next) {
   let table: Table = await TableModel.findOne({
     _id: req.urlParams.idT
   }).then();
@@ -170,4 +188,4 @@ function deleteTable(req, res, next) {
   }
   await TableModel.deleteOne({ _id: req.urlParams.idT }).then();
   res.send();
-}*/
+}

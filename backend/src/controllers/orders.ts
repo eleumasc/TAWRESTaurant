@@ -162,15 +162,7 @@ function assignOrder(order, req, res, next) {
     order
       .save()
       .then(() => {
-        if (order.status === OrderStatus.Ready) {
-          io.to(UserRole.Waiter).emit("order is ready", order);
-          OrderModel.countDocuments({
-            table: order.table,
-            status: { $not: OrderStatus.Ready }
-          }); //TODO
-        } else {
-          io.to(req.user.role).emit("order is preparing", order);
-        }
+        io.to(req.user.role).emit("order is preparing", order);
         res.json(order);
       })
       .catch(err => next(err));
@@ -182,15 +174,11 @@ function notifyOrder(order, req, res, next) {
   order
     .save()
     .then(() => {
-      if (order.status === OrderStatus.Ready) {
-        io.to(UserRole.Waiter).emit("order is ready", order);
-        OrderModel.countDocuments({
-          table: order.table,
-          status: { $not: OrderStatus.Ready }
-        }); //TODO
-      } else {
-        io.to(req.user.role).emit("order is preparing", order);
-      }
+      io.to(UserRole.Waiter).emit("order is ready", order);
+      OrderModel.countDocuments({
+        table: order.table,
+        status: { $not: OrderStatus.Ready }
+      }); //TODO
       res.json(order);
     })
     .catch(err => next(err));
