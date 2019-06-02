@@ -56,9 +56,7 @@ function getMenuItems(req, res, next) {
     .then(menuItems => {
       return res.json(menuItems);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(next);
 }
 
 function getMenuItemById(req, res, next) {
@@ -69,9 +67,7 @@ function getMenuItemById(req, res, next) {
       }
       return res.json(menuItem);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(next);
 }
 
 function postMenuItem(req, res, next) {
@@ -85,9 +81,7 @@ function postMenuItem(req, res, next) {
     .then(() => {
       return res.json(menuItem);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(next);
 }
 
 function putMenuItem(req, res, next) {
@@ -109,13 +103,9 @@ function putMenuItem(req, res, next) {
         .then(() => {
           return res.send();
         })
-        .catch(err => {
-          return next(err);
-        });
+        .catch(next);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(next);
 }
 
 function deleteMenuItem(req, res, next) {
@@ -128,11 +118,7 @@ function deleteMenuItem(req, res, next) {
         .then(() => {
           return res.send();
         })
-        .catch(err => {
-          return next(err);
-        });
+        .catch(next);
     })
-    .catch(err => {
-      return next(err);
-    });
+    .catch(next);
 }

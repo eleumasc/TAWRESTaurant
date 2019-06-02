@@ -31,7 +31,7 @@ const barmans: Route = {
           if (req.query.status) filter.status = req.query.status;
           BeverageOrderModel.find(filter)
             .then(orders => res.json(orders))
-            .catch(err => next(err));
+            .catch(next);
         }
       }
     }
@@ -78,7 +78,7 @@ const cooks: Route = {
           if (req.query.status) filter.status = req.query.status;
           FoodOrderModel.find(filter)
             .then(orders => res.json(orders))
-            .catch(err => next(err));
+            .catch(next);
         }
       }
     }
@@ -165,7 +165,7 @@ function getUsers(req, res, next) {
   if (req.query.role) filter.role = req.query.role;
   UserModel.find(filter)
     .then(users => res.json(users))
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function getUser(req, res, next) {
@@ -174,7 +174,7 @@ function getUser(req, res, next) {
       if (!user) return res.status(404).json(error("User not found"));
       return res.json(user);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function postUser(req, res, next) {
@@ -196,7 +196,7 @@ function postUser(req, res, next) {
   user
     .save()
     .then(() => res.json(user))
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function changePassword(req, res, next) {
@@ -207,9 +207,9 @@ function changePassword(req, res, next) {
       user
         .save()
         .then(() => res.send())
-        .catch(err => next(err));
+        .catch(next);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function deleteUser(req, res, next) {
@@ -220,9 +220,9 @@ function deleteUser(req, res, next) {
       }
       UserModel.deleteOne({ _id: req.urlParams.idU })
         .then(() => res.send())
-        .catch(err => next(err));
+        .catch(next);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 export default users;

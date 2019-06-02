@@ -30,11 +30,10 @@ export type Table = mongoose.Document & {
   status: TableStatus;
   numOfCustomers: number;
   servedBy: Waiter;
+  occupiedAt: Date;
   ordersTakenAt: Date;
   foodOrdersStatus: TableOrderStatus;
-  foodsReadyAt: Date;
   beverageOrdersStatus: TableOrderStatus;
-  beveragesReadyAt: Date;
 };
 
 export const tableSchema: mongoose.Schema<Table> = new mongoose.Schema({
@@ -56,23 +55,23 @@ export const tableSchema: mongoose.Schema<Table> = new mongoose.Schema({
     required: false,
     default: null
   },
+  occupiedAt: {
+    type: mongoose.Schema.Types.Date,
+    required: false,
+    default: null
+  },
+  ordersTakenAt: {
+    type: mongoose.Schema.Types.Date,
+    required: false,
+    default: null
+  },
   foodOrdersStatus: {
     type: mongoose.Schema.Types.String,
     required: false,
     default: null
   },
-  foodsReadyAt: {
-    type: mongoose.Schema.Types.Date,
-    required: false,
-    default: null
-  },
   beverageOrdersStatus: {
     type: mongoose.Schema.Types.String,
-    required: false,
-    default: null
-  },
-  beveragesReadyAt: {
-    type: mongoose.Schema.Types.Date,
     required: false,
     default: null
   }

@@ -4,12 +4,14 @@ import {
   TableModel,
   OrderModel,
   FoodOrderModel,
-  BeverageOrderModel
+  BeverageOrderModel,
+  BarmanModel,
+  CookModel
 } from "../models";
 import { error } from "../helpers/error";
 import { TableStatus } from "../models/table";
 import { OrderStatus, OrderKind, Order } from "../models/order";
-import { UserRole } from "../models/user";
+import { UserRole, Barman, Cook } from "../models/user";
 import { addParams } from "../middlewares/addParams";
 import { io } from "../server";
 import { setQuery } from "../middlewares/setQuery";
@@ -94,11 +96,11 @@ function putTableCommitOrders(req, res, next) {
       table
         .save()
         .then(() => res.json(table))
-        .catch(err => next(err));
+        .catch(next);
       io.to(UserRole.Barman).emit("orders are taken", table);
       io.to(UserRole.Cook).emit("orders are taken", table);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function getTableOrder(req, res) {
@@ -165,7 +167,7 @@ function assignOrder(order, req, res, next) {
         io.to(req.user.role).emit("order is preparing", order);
         res.json(order);
       })
-      .catch(err => next(err));
+      .catch(next);
   });
 }
 
@@ -178,10 +180,34 @@ function notifyOrder(order, req, res, next) {
       OrderModel.countDocuments({
         table: order.table,
         status: { $not: OrderStatus.Ready }
-      }); //TODO
+      });
+      switch (req.user.role) {
+        case UserRole.Barman:
+          BarmanModel.findOne({ _id: req.user._id })
+            .then((barman: Barman) => {
+              barman.totalPreparedBeverages++;
+              barman
+                .save()
+                .then()
+                .catch(next);
+            })
+            .catch(next);
+          break;
+        case UserRole.Cook:
+          CookModel.findOne({ _id: req.user._id })
+            .then((cook: Cook) => {
+              cook.totalPreparedDishes++;
+              cook
+                .save()
+                .then()
+                .catch(next);
+            })
+            .catch(next);
+          break;
+      }
       res.json(order);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function deleteTableOrder(req, res, next) {
@@ -194,7 +220,7 @@ function deleteTableOrder(req, res, next) {
       .then(() => {
         res.send();
       })
-      .catch(err => next(err));
+      .catch(next);
   });
 }
 
@@ -215,5 +241,5 @@ function postTableOrder(req, res, next) {
     .then(() => {
       res.json(order);
     })
-    .catch(err => next(err));
+    .catch(next);
 }

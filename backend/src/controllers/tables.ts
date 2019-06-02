@@ -1,7 +1,7 @@
 import { jwtAuth } from "../middlewares/jwtAuth";
 import { userHasRole } from "../middlewares/userHasRole";
 import { error } from "../helpers/error";
-import { TableModel, OrderModel } from "../models";
+import { TableModel, OrderModel, WaiterModel } from "../models";
 import { UserRole } from "../models/user";
 import {
   isCreateTableForm,
@@ -65,7 +65,7 @@ function getTables(req, res, next) {
     filter.beverageOrdersStatus = servedById;
   TableModel.find(filter)
     .then(tables => res.json(tables))
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function getTable(req, res, next) {
@@ -74,7 +74,7 @@ function getTable(req, res, next) {
       if (!table) return res.status(404).json(error("Table not found"));
       return res.json(table);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 /*async function getTable(req, res, next) {
@@ -89,7 +89,7 @@ function getTable(req, res, next) {
   table
     .save()
     .then(() => res.json(table))
-    .catch(err => next(err));
+    .catch(next);
 }*/
 
 async function createTable(req, res, next) {
@@ -124,7 +124,7 @@ function putChangeTableStatus(req, res, next) {
           )
         );
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function occupyTable(table, req, res, next) {
@@ -141,7 +141,7 @@ function occupyTable(table, req, res, next) {
       io.emit("table status changed", table);
       return res.send();
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 function freeTable(table, req, res, next) {
@@ -149,6 +149,14 @@ function freeTable(table, req, res, next) {
     return res.status(400).json(error("Table is already free"));
   OrderModel.deleteMany({ table: table._id })
     .then(() => {
+      let numOfCustomers = table.numOfCustomers;
+      WaiterModel.findOne({ _id: table.servedBy }).then(waiter => {
+        waiter.totalServedCustomers += numOfCustomers;
+        waiter
+          .save()
+          .then()
+          .catch(next);
+      });
       table.status = TableStatus.Free;
       table.numOfCustomers = 0;
       table.servedBy = null;
@@ -161,9 +169,9 @@ function freeTable(table, req, res, next) {
           io.emit("table status changed", table);
           res.send();
         })
-        .catch(err => next(err));
+        .catch(next);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 /*function deleteTable(req, res, next) {
@@ -174,9 +182,9 @@ function freeTable(table, req, res, next) {
       }
       TableModel.deleteOne({ _id: req.urlParams.idT })
         .then(() => res.send())
-        .catch(err => next(err));
+        .catch(next);
     })
-    .catch(err => next(err));
+    .catch(next);
 }*/
 
 async function deleteTable(req, res, next) {
