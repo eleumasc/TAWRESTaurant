@@ -64,6 +64,7 @@ function getTables(req, res, next) {
   if (beverageOrdersStatus && isOrderStatus(beverageOrdersStatus))
     filter.beverageOrdersStatus = servedById;
   TableModel.find(filter)
+    .sort({ ordersTakenAt: "asc" })
     .then(tables => res.json(tables))
     .catch(next);
 }
