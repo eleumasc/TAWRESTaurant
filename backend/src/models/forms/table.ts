@@ -25,7 +25,7 @@ export function isCreateTableForm(req: any): req is CreateTableForm {
 }
 
 export function isOccupyFreeRequest(req: any): boolean {
-  const { query, body, user } = req;
+  const { query, body } = req;
   return (
     req &&
     query.action &&
