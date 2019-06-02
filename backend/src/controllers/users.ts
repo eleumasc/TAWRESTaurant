@@ -74,7 +74,7 @@ const cooks: Route = {
       middlewares: [addParams("idU")],
       GET: {
         callback: (req, res, next) => {
-          let filter: any = { barman: req.urlParams.idU };
+          let filter: any = { cook: req.urlParams.idU };
           if (req.query.status) filter.status = req.query.status;
           FoodOrderModel.find(filter)
             .then(orders => res.json(orders))

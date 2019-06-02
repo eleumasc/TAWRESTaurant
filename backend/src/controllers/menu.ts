@@ -38,24 +38,21 @@ export const menu: Route = {
 
 function getMenuItems(req, res, next) {
   const { name, price, preparationTime, kind } = req.query;
-  const filter = {};
+  const filter: any = {};
   if (name && typeof name === "string") {
-    filter["name"] = name;
+    filter.name = name;
   }
   if (price && typeof price === "number") {
-    filter["price"] = price;
+    filter.price = { $lt: price - 1, $gt: price - 1 };
   }
   if (preparationTime && typeof preparationTime === "number") {
-    filter["preparationTime"] = preparationTime;
+    filter.preparationTime = preparationTime;
   }
   if (kind && isMenuItemKind(kind)) {
-    filter["kind"] = kind;
+    filter.kind = kind;
   }
-
   MenuItemModel.find(filter)
-    .then(menuItems => {
-      return res.json(menuItems);
-    })
+    .then(menuItems => res.json(menuItems))
     .catch(next);
 }
 

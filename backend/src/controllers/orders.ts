@@ -9,7 +9,7 @@ import {
   CookModel
 } from "../models";
 import { error } from "../helpers/error";
-import { TableStatus } from "../models/table";
+import { TableStatus, TableOrderStatus } from "../models/table";
 import { OrderStatus, OrderKind, Order } from "../models/order";
 import { UserRole, Barman, Cook } from "../models/user";
 import { addParams } from "../middlewares/addParams";
@@ -79,26 +79,53 @@ function getTableOrders(req, res, next) {
   let filter: any = { table: req.urlParams.idT };
   if (status) filter.status = status;
   if (kind) filter.kind = kind;
-  OrderModel.find(filter).exec((err, orders) => {
-    if (err) return next(err);
-    res.json(orders);
-  });
+  OrderModel.find(filter)
+    .populate("food beverage")
+    .exec((err, orders) => {
+      if (err) return next(err);
+      res.json(
+        orders.sort((a: any, b: any) => {
+          return (
+            (b.food || b.beverage).preparationTime -
+            (a.food || a.beverage).preparationTime
+          );
+        })
+      );
+    });
 }
 
 function putTableCommitOrders(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then(table => {
       if (!table) return res.status(404).json(error("Table not found"));
-      if ((table.status = TableStatus.Waiting))
+      if (table.status === TableStatus.Waiting)
         return res.status(400).json(error("Orders already taken"));
       table.status = TableStatus.Waiting;
       table.ordersTakenAt = new Date();
-      table
-        .save()
-        .then(() => res.json(table))
+      table.foodOrdersStatus = TableOrderStatus.Pending;
+      table.beverageOrdersStatus = TableOrderStatus.Pending;
+      OrderModel.find({ table: table._id })
+        .then((orders: Array<Order>) => {
+          if (
+            !orders.some((order: Order) => order.kind === OrderKind.FoodOrder)
+          )
+            table.foodOrdersStatus === TableOrderStatus.Served;
+          if (
+            !orders.some(
+              (order: Order) => order.kind === OrderKind.BeverageOrder
+            )
+          )
+            table.beverageOrdersStatus === TableOrderStatus.Served;
+          table
+            .save()
+            .then(() => {
+              io.to(UserRole.Barman).emit("orders are taken", table);
+              io.to(UserRole.Cook).emit("orders are taken", table);
+              res.json(table);
+            })
+            .catch(next);
+        })
         .catch(next);
-      io.to(UserRole.Barman).emit("orders are taken", table);
-      io.to(UserRole.Cook).emit("orders are taken", table);
     })
     .catch(next);
 }

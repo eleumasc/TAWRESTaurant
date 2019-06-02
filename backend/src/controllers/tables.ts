@@ -127,7 +127,7 @@ function putChangeTableStatus(req, res, next) {
     .catch(next);
 }
 
-function occupyTable(table, req, res, next) {
+function occupyTable(table: Table, req, res, next) {
   if (table.seats < req.body.numOfCustomers)
     return res.status(400).json(error("Not enough seats"));
   if (table.status !== TableStatus.Free)
@@ -135,6 +135,7 @@ function occupyTable(table, req, res, next) {
   table.status = TableStatus.NotServed;
   table.numOfCustomers = req.body.numOfCustomers;
   table.servedBy = req.user._id;
+  table.occupiedAt = new Date();
   table
     .save()
     .then(() => {
@@ -144,7 +145,7 @@ function occupyTable(table, req, res, next) {
     .catch(next);
 }
 
-function freeTable(table, req, res, next) {
+function freeTable(table: Table, req, res, next) {
   if (table.status === TableStatus.Free)
     return res.status(400).json(error("Table is already free"));
   OrderModel.deleteMany({ table: table._id })
