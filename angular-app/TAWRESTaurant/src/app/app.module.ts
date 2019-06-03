@@ -33,6 +33,7 @@ import { TablesPageComponent } from "./components/tables-page/tables-page.compon
 import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
 import { MyTablesComponent } from "./components/my-tables/my-tables.component";
 import { TakeOrdersModalContentComponent } from "./components/take-orders-modal-content/take-orders-modal-content.component";
+import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.component";
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { TakeOrdersModalContentComponent } from "./components/take-orders-modal-
     TablesPageComponent,
     FreeTablesPageComponent,
     MyTablesComponent,
-    TakeOrdersModalContentComponent
+    TakeOrdersModalContentComponent,
+    KitchenPageComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,
