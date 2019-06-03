@@ -1,0 +1,48 @@
+<app-live-tables
+  [filter]="{ servedBy: servedBy }"
+  [sort]="[{ by: 'occupiedAt' }]"
+>
+  <ng-template let-tables="tables">
+    <div class="card px-3 py-3 mb-2" *ngFor="let table of tables">
+      <ng-container *ngIf="table.status === 'not-served'">
+        <app-table-content [table]="table" [show]="{ status: true }">
+          <div section="pre" class="float-right">
+            <button
+              class="btn btn-primary"
+              (click)="openTakeOrdersModal(table)"
+            >
+              Ordini
+            </button>
+          </div>
+        </app-table-content>
+      </ng-container>
+      <ng-container *ngIf="table.status === 'waiting'">
+        <app-table-content
+          [table]="table"
+          [show]="{
+            status: true,
+            foodOrdersStatus: true,
+            beverageOrdersStatus: true
+          }"
+        >
+          <div section="pre" class="float-right">
+            <button
+              class="btn btn-primary"
+              (click)="notifyServed(table, 'FoodOrder')"
+              *ngIf="table.foodOrdersStatus === 'ready'"
+            >
+              Piatti serviti
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="notifyServed(table, 'BeverageOrder')"
+              *ngIf="table.beverageOrdersStatus === 'ready'"
+            >
+              Bevande servite
+            </button>
+          </div></app-table-content
+        >
+      </ng-container>
+    </div>
+  </ng-template>
+</app-live-tables>

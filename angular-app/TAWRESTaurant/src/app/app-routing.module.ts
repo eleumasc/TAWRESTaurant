@@ -10,6 +10,7 @@ import { HomeComponent } from "./components/home/home.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
 import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
+import { MyTablesComponent } from "./components/my-tables/my-tables.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" },
@@ -45,6 +46,14 @@ const routes: Routes = [
   {
     path: "free-tables",
     component: FreeTablesPageComponent,
+    canActivate: [AuthGuardService],
+    data: {
+      roles: [UserRole.Waiter]
+    }
+  },
+  {
+    path: "my-tables",
+    component: MyTablesComponent,
     canActivate: [AuthGuardService],
     data: {
       roles: [UserRole.Waiter]

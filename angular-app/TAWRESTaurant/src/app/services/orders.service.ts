@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { AuthService } from "./auth.service";
 import { environment } from "src/environments/environment";
-import { Cook, Barman } from "../models/User";
 import { Order, OrderKind, OrderStatus } from "../models/Order";
 import { Table } from "../models/Table";
 import { Food, Beverage } from "../models/MenuItem";

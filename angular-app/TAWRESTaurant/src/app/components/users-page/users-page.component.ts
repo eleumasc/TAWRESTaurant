@@ -52,11 +52,13 @@ export class UsersPageComponent implements OnInit {
         this.usersService
           .changePassword(user, form)
           .then(() => {
-            alert(
-              'La password di "' +
-                user.username +
-                '" è stata cambiata con successo.'
-            );
+            setTimeout(() => {
+              alert(
+                'La password di "' +
+                  user.username +
+                  '" è stata cambiata con successo.'
+              );
+            }, 250);
           })
           .catch(() => {
             alert("Si è verificato un errore.");

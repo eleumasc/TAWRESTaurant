@@ -9,15 +9,27 @@ import { TablesService } from "src/app/services/tables.service";
 export class FreeTablesPageComponent implements OnInit {
   numOfCustomers: number;
 
+  searching: boolean = false;
+
   constructor(private tablesService: TablesService) {}
 
   ngOnInit() {}
+
+  search() {
+    this.searching = true;
+  }
+
+  cancelSearch() {
+    this.searching = false;
+  }
 
   occupyTable(table) {
     this.tablesService
       .occupyTable(table, this.numOfCustomers)
       .then(() => {
-        alert("Hai occupato il tavolo " + table.number);
+        setTimeout(() => {
+          alert("Hai occupato il tavolo " + table.number);
+        }, 250);
       })
       .catch(() => {
         alert("Si è verificato un errore");

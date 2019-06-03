@@ -1,18 +1,24 @@
-<form>
-  <div class="form-group">
-    <label>Numero di clienti</label>
+<form class="mb-4" (submit)="search()">
+  <div class="input-group">
     <input
       type="number"
       class="form-control"
+      placeholder="Numero di clienti"
       [(ngModel)]="numOfCustomers"
       name="numOfCustomers"
+      (ngModelChange)="cancelSearch()"
     />
+    <div class="input-group-append">
+      <button class="btn btn-primary">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
   </div>
 </form>
 <app-live-tables
   [filter]="{ seats: numOfCustomers, status: 'free' }"
   [sort]="[{ by: 'number' }]"
-  *ngIf="numOfCustomers > 0"
+  *ngIf="searching && numOfCustomers > 0"
 >
   <ng-template let-loading="loading" let-tables="tables">
     <ngb-alert
@@ -23,12 +29,7 @@
     >
     <ng-container *ngIf="!loading && tables.length > 0">
       <div class="card px-3 py-3 mb-2" *ngFor="let table of tables">
-        <app-table-content
-          [table]="table"
-          [show]="{
-            seats: true,
-            status: true
-          }"
+        <app-table-content [table]="table" [show]="{ seats: true }"
           ><div section="pre" class="float-right">
             <button class="btn btn-success" (click)="occupyTable(table)">
               Occupa

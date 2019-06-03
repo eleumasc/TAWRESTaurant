@@ -30,7 +30,9 @@ import { LiveTablesComponent } from "./components/live-tables/live-tables.compon
 import { OrderContentComponent } from "./components/order-content/order-content.component";
 import { LiveOrdersComponent } from "./components/live-orders/live-orders.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
-import { FreeTablesPageComponent } from './components/free-tables-page/free-tables-page.component';
+import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
+import { MyTablesComponent } from "./components/my-tables/my-tables.component";
+import { TakeOrdersModalContentComponent } from "./components/take-orders-modal-content/take-orders-modal-content.component";
 
 @NgModule({
   declarations: [
@@ -48,11 +50,14 @@ import { FreeTablesPageComponent } from './components/free-tables-page/free-tabl
     OrderContentComponent,
     LiveOrdersComponent,
     TablesPageComponent,
-    FreeTablesPageComponent
+    FreeTablesPageComponent,
+    MyTablesComponent,
+    TakeOrdersModalContentComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,
-    ChangePasswordModalContentComponent
+    ChangePasswordModalContentComponent,
+    TakeOrdersModalContentComponent
   ],
   imports: [
     BrowserModule,
