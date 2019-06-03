@@ -25,8 +25,12 @@ import { HomeComponent } from "./components/home/home.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { CreateUserModalContentComponent } from "./components/create-user-modal-content/create-user-modal-content.component";
 import { ChangePasswordModalContentComponent } from "./components/change-password-modal-content/change-password-modal-content.component";
+import { TableContentComponent } from "./components/table-content/table-content.component";
+import { LiveTablesComponent } from "./components/live-tables/live-tables.component";
+import { OrderContentComponent } from "./components/order-content/order-content.component";
+import { LiveOrdersComponent } from "./components/live-orders/live-orders.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
-import { TablesListComponent } from "./components/tables-list/tables-list.component";
+import { FreeTablesPageComponent } from './components/free-tables-page/free-tables-page.component';
 
 @NgModule({
   declarations: [
@@ -39,8 +43,12 @@ import { TablesListComponent } from "./components/tables-list/tables-list.compon
     UsersPageComponent,
     CreateUserModalContentComponent,
     ChangePasswordModalContentComponent,
+    TableContentComponent,
+    LiveTablesComponent,
+    OrderContentComponent,
+    LiveOrdersComponent,
     TablesPageComponent,
-    TablesListComponent
+    FreeTablesPageComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,

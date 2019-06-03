@@ -1,16 +1,21 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { AuthService } from "./auth.service";
 import { environment } from "src/environments/environment";
 import { Waiter } from "../models/User";
-import { Table, TableStatus, TableOrdersStatus } from "../models/Table";
+import { Table, TableStatus, TableOrderStatus } from "../models/Table";
 
 export type GetTablesFilter = {
   seats?: number;
   status?: TableStatus;
-  servedBy?: Waiter;
-  foodOrdersStatus?: TableOrdersStatus;
-  beverageOrdersStatus?: TableOrdersStatus;
+  servedBy?: string;
+  foodOrdersStatus?: TableOrderStatus;
+  beverageOrdersStatus?: TableOrderStatus;
+};
+
+export type GetTablesSortRule = {
+  by: "number" | "seats" | "occupiedAt" | "ordersTakenAt";
+  desc?: boolean;
 };
 
 @Injectable({
@@ -19,19 +24,39 @@ export type GetTablesFilter = {
 export class TablesService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
+  private getGetTablesHttpParamsByFilter(
+    filter: GetTablesFilter
+  ): {
+    [param: string]: string | string[];
+  } {
+    const params: {
+      [param: string]: string | string[];
+    } = {};
+    if (filter.seats) {
+      params["seats"] = "" + filter.seats;
+    }
+    if (filter.status) {
+      params["status"] = filter.status;
+    }
+    if (filter.servedBy) {
+      params["servedBy"] = filter.servedBy;
+    }
+    if (filter.foodOrdersStatus) {
+      params["foodOrdersStatus"] = filter.foodOrdersStatus;
+    }
+    if (filter.beverageOrdersStatus) {
+      params["beverageOrdersStatus"] = filter.beverageOrdersStatus;
+    }
+    return params;
+  }
+
   async getTables(filter: GetTablesFilter): Promise<Table[]> {
     return this.http
-      .get(environment.apiUrl + "/tables", {
+      .get(environment.baseUrl + environment.apiPath + "/tables", {
         headers: new HttpHeaders({
           Authorization: "Bearer " + (await this.authService.getToken())
         }),
-        params: {
-          seats: (filter.seats && "" + filter.seats) || "",
-          status: filter.status || "",
-          servedById: (filter.servedBy && filter.servedBy._id) || "",
-          foodOrdersStatus: filter.foodOrdersStatus || "",
-          beverageOrdersStatus: filter.beverageOrdersStatus || ""
-        },
+        params: this.getGetTablesHttpParamsByFilter(filter),
         responseType: "json"
       })
       .toPromise() as Promise<Table[]>;
@@ -39,7 +64,7 @@ export class TablesService {
 
   async getTableById(id: string): Promise<Table> {
     return this.http
-      .get(environment.apiUrl + `/tables/byId/${id}`, {
+      .get(environment.baseUrl + environment.apiPath + `/tables/byId/${id}`, {
         headers: new HttpHeaders({
           Authorization: "Bearer " + (await this.authService.getToken())
         }),
@@ -48,11 +73,11 @@ export class TablesService {
       .toPromise() as Promise<Table>;
   }
 
-  async occupyTable(table: Table): Promise<undefined> {
+  async occupyTable(table: Table, numOfCustomers: number): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl + `/tables/byId/${table._id}`,
-        {},
+        environment.baseUrl + environment.apiPath + `/tables/byId/${table._id}`,
+        { numOfCustomers: numOfCustomers },
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
@@ -67,7 +92,7 @@ export class TablesService {
   async freeTable(table: Table): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl + `/tables/byId/${table._id}`,
+        environment.baseUrl + environment.apiPath + `/tables/byId/${table._id}`,
         {},
         {
           headers: new HttpHeaders({

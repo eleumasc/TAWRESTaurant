@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import * as io from "socket.io-client";
 import { AuthService } from "./auth.service";
+import { environment } from "src/environments/environment";
 import { Observable } from "rxjs";
 
 @Injectable({
@@ -16,20 +17,18 @@ export class EventsService {
   private observeFor(eventName: string) {
     return new Observable(observer => {
       if (this.observersCount++ < 1) {
-        this.socket = io.connect("http://localhost:3000/", {
-          path: "/api/v1/events",
+        this.socket = io.connect(environment.baseUrl, {
+          path: environment.apiPath + "/events",
           query: `auth_token=${this.authService.getToken()}`
         });
       }
+
       this.socket.on(eventName, data => {
         observer.next(data);
       });
-      this.socket.on("connect", () => {
-        console.log("Connected to socket.io");
-      });
+
       return () => {
         if (--this.observersCount < 1) {
-          console.log("Disconnected from socket.io");
           this.socket.disconnect();
         }
       };

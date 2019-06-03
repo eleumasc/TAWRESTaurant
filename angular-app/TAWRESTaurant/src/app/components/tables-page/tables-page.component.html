@@ -1,1 +1,30 @@
-<app-tables-list [filter]="{}"></app-tables-list>
+<app-live-tables [filter]="{}" [sort]="[{ by: 'number' }]">
+  <ng-template let-tables="tables"
+    ><div class="card px-3 py-3 mb-2" *ngFor="let table of tables">
+      <app-table-content
+        [table]="table"
+        [show]="{
+          seats: true,
+          status: true,
+          foodOrdersStatus: true,
+          beverageOrdersStatus: true
+        }"
+      ></app-table-content>
+      <app-live-orders
+        class="mt-3"
+        [filter]="{ table: table['_id'] }"
+        *ngIf="table.status === 'waiting' || table.status === 'served'"
+      >
+        <ng-template let-orders="orders">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let order of orders">
+              <app-order-content
+                [order]="order"
+                [show]="{ status: true }"
+              ></app-order-content>
+            </li>
+          </ul>
+        </ng-template>
+      </app-live-orders></div
+  ></ng-template>
+</app-live-tables>

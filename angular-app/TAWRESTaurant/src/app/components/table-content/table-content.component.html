@@ -1,0 +1,16 @@
+<ng-content select="div [section='pre']"></ng-content>
+<h5>Tavolo {{ table.number }}</h5>
+<h6 class="text-muted">
+  {{
+    show.status &&
+      (table.status === "free" ? "Libero" : "Occupato (" + table.status + ")")
+  }}
+</h6>
+<p class="my-0">{{ show.seats && "Numero di posti: " + table.seats }}</p>
+<p class="my-0">
+  {{ show.foodOrdersStatus && "Piatti: " + table.foodOrdersStatus }}
+</p>
+<p class="my-0">
+  {{ show.beverageOrdersStatus && "Bevande: " + table.beverageOrdersStatus }}
+</p>
+<ng-content select="div [section='post']"></ng-content>

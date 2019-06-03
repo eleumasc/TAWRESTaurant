@@ -1,0 +1,24 @@
+<ng-content select="div [section='pre']"></ng-content>
+<h5 class="float-right">
+  {{
+    show.price &&
+      (order.kind === "FoodOrder" ? order.food.price : order.beverage.price)
+  }}
+</h5>
+<h5>
+  <i
+    [class]="order.kind === 'FoodOrder' ? 'fa fa-hamburger' : 'fa fa-coffee'"
+  ></i>
+  &nbsp;{{ order.kind === "FoodOrder" ? order.food.name : order.beverage.name }}
+</h5>
+<h6 class="text-muted">{{ show.status && order.status }}</h6>
+<p class="my-0">
+  {{
+    show.preparationTime &&
+      "Tempo di preparazione: " +
+        (order.kind === "FoodOrder"
+          ? order.food.preparationTime
+          : order.beverage.preparationTime)
+  }}
+</p>
+<ng-content select="div [section='post']"></ng-content>

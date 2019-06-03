@@ -1,6 +1,4 @@
 import { enumHasValue } from "../helpers/enumHasValue";
-import { Waiter } from "./User";
-import { Order } from "./Order";
 
 export enum TableStatus {
   Free = "free",
@@ -13,14 +11,14 @@ export function isTableStatus(arg: any): arg is TableStatus {
   return arg && typeof arg === "string" && enumHasValue(TableStatus, arg);
 }
 
-export enum TableOrdersStatus {
+export enum TableOrderStatus {
   Pending = "pending",
   Ready = "ready",
   Served = "served"
 }
 
 export function isTableOrderStatus(arg: any): arg is TableStatus {
-  return arg && typeof arg === "string" && enumHasValue(TableOrdersStatus, arg);
+  return arg && typeof arg === "string" && enumHasValue(TableOrderStatus, arg);
 }
 
 export type Table = {
@@ -29,11 +27,9 @@ export type Table = {
   seats: number;
   status: TableStatus;
   numOfCustomers: number;
-  servedBy: Waiter;
-  orders: Order[];
-  ordersTakenAt: Date;
-  foodOrdersStatus: TableOrdersStatus;
-  foodsReadyAt: Date;
-  beverageOrdersStatus: TableOrdersStatus;
-  beveragesReadyAt: Date;
+  servedBy: string; // (<Waiter>servedBy)._id
+  occupiedAt: string; // Date
+  ordersTakenAt: string; // Date
+  foodOrdersStatus: TableOrderStatus;
+  beverageOrdersStatus: TableOrderStatus;
 };

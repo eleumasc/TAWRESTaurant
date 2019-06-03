@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { AuthService } from "./auth.service";
 import { environment } from "src/environments/environment";
 import { Cook, Barman } from "../models/User";
@@ -9,7 +9,7 @@ import { Food, Beverage } from "../models/MenuItem";
 
 export type GetOrdersFilter =
   | {
-      table: Table;
+      table: string;
       kind?: OrderKind;
       status?: OrderStatus;
       cook?: undefined;
@@ -19,7 +19,7 @@ export type GetOrdersFilter =
       table?: undefined;
       kind?: OrderKind.FoodOrder;
       status?: OrderStatus.Preparing | OrderStatus.Ready;
-      cook: Cook;
+      cook: string;
       barman?: undefined;
     }
   | {
@@ -27,8 +27,13 @@ export type GetOrdersFilter =
       kind?: OrderKind.BeverageOrder;
       status?: OrderStatus.Preparing | OrderStatus.Ready;
       cook?: undefined;
-      barman: Barman;
+      barman: string;
     };
+
+export type GetOrdersSortRule = {
+  by: "price" | "preparationTime";
+  desc?: boolean;
+};
 
 @Injectable({
   providedIn: "root"
@@ -36,13 +41,13 @@ export type GetOrdersFilter =
 export class OrdersService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  private getGetOrdersPathByFilter(filter: GetOrdersFilter) {
+  private getGetOrdersPathByFilter(filter: GetOrdersFilter): string {
     if (filter.cook) {
-      return `/users/cooks/byId/${filter.cook._id}/orders`;
+      return `/users/cooks/byId/${filter.cook}/orders`;
     } else if (filter.barman) {
-      return `/users/barmans/byId/${filter.barman._id}/orders`;
+      return `/users/barmans/byId/${filter.barman}/orders`;
     } else {
-      let path = `/tables/byId/${filter.table._id}/orders`;
+      let path = `/tables/byId/${filter.table}/orders`;
       if (filter.status) {
         if (filter.kind === OrderKind.FoodOrder) {
           path += "/foodOrders";
@@ -54,28 +59,50 @@ export class OrdersService {
     }
   }
 
+  private getGetOrdersHttpParamsByFilter(
+    filter: GetOrdersFilter
+  ): {
+    [param: string]: string | string[];
+  } {
+    const params: {
+      [param: string]: string | string[];
+    } = {};
+    if (filter.status) {
+      params["status"] = filter.status;
+    }
+    return params;
+  }
+
   async getOrders(filter: GetOrdersFilter): Promise<Order[]> {
     return this.http
-      .get(environment.apiUrl + this.getGetOrdersPathByFilter(filter), {
-        headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
-        }),
-        params: {
-          status: filter.status
-        },
-        responseType: "json"
-      })
+      .get(
+        environment.baseUrl +
+          environment.apiPath +
+          this.getGetOrdersPathByFilter(filter),
+        {
+          headers: new HttpHeaders({
+            Authorization: "Bearer " + (await this.authService.getToken())
+          }),
+          params: this.getGetOrdersHttpParamsByFilter(filter),
+          responseType: "json"
+        }
+      )
       .toPromise() as Promise<Order[]>;
   }
 
   async getOrderById(table: Table, id: string): Promise<Order> {
     return this.http
-      .get(environment.apiUrl + `/tables/byId/${table._id}/orders/byId/${id}`, {
-        headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
-        }),
-        responseType: "json"
-      })
+      .get(
+        environment.baseUrl +
+          environment.apiPath +
+          `/tables/byId/${table._id}/orders/byId/${id}`,
+        {
+          headers: new HttpHeaders({
+            Authorization: "Bearer " + (await this.authService.getToken())
+          }),
+          responseType: "json"
+        }
+      )
       .toPromise() as Promise<Order>;
   }
 
@@ -87,7 +114,8 @@ export class OrdersService {
   ) {
     return this.http
       .post(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/tables/byId/${table._id}/orders${
             form.food ? "/foodOrders" : "/beverageOrders"
           }`,
@@ -108,7 +136,9 @@ export class OrdersService {
   async commitOrders(table: Table): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl + `/tables/byId/${table._id}/orders`,
+        environment.baseUrl +
+          environment.apiPath +
+          `/tables/byId/${table._id}/orders`,
         { action: "commit" },
         {
           headers: new HttpHeaders({
@@ -123,7 +153,8 @@ export class OrdersService {
   async notifyServedOrders(table: Table, kind: OrderKind): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/tables/byId/${table._id}/orders${
             kind === OrderKind.FoodOrder ? "/foodOrders" : "/beverageOrders"
           }`,
@@ -141,7 +172,8 @@ export class OrdersService {
   async assignOrder(table: Table, order: Order): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/tables/byId/${table._id}/orders${
             order.kind === OrderKind.FoodOrder
               ? "/foodOrders"
@@ -161,7 +193,8 @@ export class OrdersService {
   async notifyReadyOrder(table: Table, order: Order): Promise<undefined> {
     return this.http
       .put(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/tables/byId/${table._id}/orders${
             order.kind === OrderKind.FoodOrder
               ? "/foodOrders"
@@ -181,7 +214,8 @@ export class OrdersService {
   async deleteOrder(table: Table, order: Order): Promise<undefined> {
     return this.http
       .delete(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/tables/byId/${table._id}/orders/byId/${order._id}`,
         {
           headers: new HttpHeaders({

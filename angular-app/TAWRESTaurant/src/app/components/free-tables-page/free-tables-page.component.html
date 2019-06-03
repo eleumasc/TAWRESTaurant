@@ -1,0 +1,41 @@
+<form>
+  <div class="form-group">
+    <label>Numero di clienti</label>
+    <input
+      type="number"
+      class="form-control"
+      [(ngModel)]="numOfCustomers"
+      name="numOfCustomers"
+    />
+  </div>
+</form>
+<app-live-tables
+  [filter]="{ seats: numOfCustomers, status: 'free' }"
+  [sort]="[{ by: 'number' }]"
+  *ngIf="numOfCustomers > 0"
+>
+  <ng-template let-loading="loading" let-tables="tables">
+    <ngb-alert
+      type="info"
+      [dismissible]="false"
+      *ngIf="!loading && tables.length === 0"
+      >Nessun tavolo libero</ngb-alert
+    >
+    <ng-container *ngIf="!loading && tables.length > 0">
+      <div class="card px-3 py-3 mb-2" *ngFor="let table of tables">
+        <app-table-content
+          [table]="table"
+          [show]="{
+            seats: true,
+            status: true
+          }"
+          ><div section="pre" class="float-right">
+            <button class="btn btn-success" (click)="occupyTable(table)">
+              Occupa
+            </button>
+          </div></app-table-content
+        >
+      </div>
+    </ng-container>
+  </ng-template>
+</app-live-tables>

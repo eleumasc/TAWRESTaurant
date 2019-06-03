@@ -15,7 +15,8 @@ export class MenuItemsService {
   async getMenuItems(filter: GetMenuItemsFilter): Promise<MenuItem[]> {
     return this.http
       .get(
-        environment.apiUrl +
+        environment.baseUrl +
+          environment.apiPath +
           `/menu${(filter.kind === MenuItemKind.Food && "/foods") ||
             (filter.kind === MenuItemKind.Beverage && "/beverages") ||
             ""}`,
@@ -31,7 +32,7 @@ export class MenuItemsService {
 
   async getMenuItemById(id: string): Promise<MenuItem> {
     return this.http
-      .get(environment.apiUrl + `/menu/byId/${id}`, {
+      .get(environment.baseUrl + environment.apiPath + `/menu/byId/${id}`, {
         headers: new HttpHeaders({
           Authorization: "Bearer " + (await this.authService.getToken())
         }),

@@ -9,6 +9,7 @@ import { LoginComponent } from "./components/login/login.component";
 import { HomeComponent } from "./components/home/home.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
+import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" },
@@ -38,7 +39,15 @@ const routes: Routes = [
     component: TablesPageComponent,
     canActivate: [AuthGuardService],
     data: {
-      roles: [UserRole.Cashier, UserRole.Waiter /* TO REMOVE */]
+      roles: [UserRole.Cashier]
+    }
+  },
+  {
+    path: "free-tables",
+    component: FreeTablesPageComponent,
+    canActivate: [AuthGuardService],
+    data: {
+      roles: [UserRole.Waiter]
     }
   }
 ];

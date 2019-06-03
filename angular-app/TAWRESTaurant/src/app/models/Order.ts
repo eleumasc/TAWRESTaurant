@@ -1,7 +1,5 @@
 import { enumHasValue } from "../helpers/enumHasValue";
-import { Cook, Barman } from "./User";
 import { Food, Beverage } from "./MenuItem";
-import { Table } from "./Table";
 
 export enum OrderKind {
   FoodOrder = "FoodOrder",
@@ -14,7 +12,7 @@ export function isOrderKind(arg: any): arg is OrderKind {
 
 export type Order = {
   readonly _id: string;
-  table: Table;
+  table: string; // (<Table>table)._id
   status: OrderStatus;
   kind: OrderKind;
 };
@@ -32,11 +30,11 @@ export function isOrderStatus(arg: any): arg is OrderStatus {
 export type FoodOrder = Order & {
   kind: OrderKind.FoodOrder;
   food: Food;
-  cook: Cook;
+  cook: string; // (<Cook>cook)._id
 };
 
 export type BeverageOrder = Order & {
   kind: OrderKind.BeverageOrder;
   beverage: Beverage;
-  barman: Barman;
+  barman: string; // (<Barman>barman)._id
 };

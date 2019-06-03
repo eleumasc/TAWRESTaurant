@@ -10,7 +10,7 @@ export class LoginService {
 
   async login(username: string, password: string): Promise<{ token: string }> {
     return this.http
-      .post(environment.apiUrl + "/login", null, {
+      .post(environment.baseUrl + environment.apiPath + "/login", null, {
         headers: new HttpHeaders({
           Authorization: "Basic " + btoa(username + ":" + password)
         }),
