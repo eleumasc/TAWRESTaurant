@@ -279,7 +279,7 @@ function postTableOrder(req, res, next) {
 }
 
 function putServeOrders(req, res, next) {
-  if (!(req.query.action === "notify-served"))
+  if (req.query.action !== "notify-served")
     return res.status(400).json(error("Bad request"));
   TableModel.findOne({ _id: req.urlParams.idT }).then(table => {
     if (!table)
