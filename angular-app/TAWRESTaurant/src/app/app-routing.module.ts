@@ -10,6 +10,8 @@ import { HomeComponent } from "./components/home/home.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
 import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
+import { KitchenPageComponent } from './components/kitchen-page/kitchen-page.component';
+import { OrderKind } from './models/Order';
 
 const routes: Routes = [
   { path: "", redirectTo: "/login", pathMatch: "full" },
@@ -49,6 +51,24 @@ const routes: Routes = [
     data: {
       roles: [UserRole.Waiter]
     }
+  },
+  {
+    path: "kitchen-page",
+    component: KitchenPageComponent,
+    canActivate: [AuthGuardService],
+    data: {
+      roles: [UserRole.Cook],
+      kind: OrderKind.FoodOrder
+    }
+  },
+  {
+    path: "bar-page",
+    component: KitchenPageComponent,
+    canActivate: [AuthGuardService],
+    data: {
+      roles: [UserRole.Barman],
+      kind: OrderKind.BeverageOrder
+    }
   }
 ];
 
@@ -56,4 +76,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

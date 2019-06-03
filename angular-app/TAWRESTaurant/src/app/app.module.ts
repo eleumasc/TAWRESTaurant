@@ -31,6 +31,7 @@ import { OrderContentComponent } from "./components/order-content/order-content.
 import { LiveOrdersComponent } from "./components/live-orders/live-orders.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
 import { FreeTablesPageComponent } from './components/free-tables-page/free-tables-page.component';
+import { KitchenPageComponent } from './components/kitchen-page/kitchen-page.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { FreeTablesPageComponent } from './components/free-tables-page/free-tabl
     OrderContentComponent,
     LiveOrdersComponent,
     TablesPageComponent,
-    FreeTablesPageComponent
+    FreeTablesPageComponent,
+    KitchenPageComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,
