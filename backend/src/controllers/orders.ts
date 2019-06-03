@@ -244,10 +244,7 @@ function deleteTableOrder(req, res, next) {
   }).then(order => {
     if (!order) return res.status(404).json(error("Order not found"));
     OrderModel.deleteOne({ _id: req.urlParams.idO })
-      .then(() => {
-        res.send();
-      })
-      .catch(next);
+      .then(() => res.send()).catch(next);
   });
 }
 
@@ -270,10 +267,7 @@ function postTableOrder(req, res, next) {
     }
     order
       .save()
-      .then(() => {
-        res.json(order);
-      })
-      .catch(next);
+      .then(() => res.json(order)).catch(next);
   }).catch(next)
 
 }

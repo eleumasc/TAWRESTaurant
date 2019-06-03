@@ -141,7 +141,7 @@ function occupyTable(table: Table, req, res, next) {
     .save()
     .then(() => {
       io.emit("table status changed", table);
-      return res.send();
+      res.send();
     })
     .catch(next);
 }

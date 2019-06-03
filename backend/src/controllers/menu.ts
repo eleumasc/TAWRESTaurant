@@ -74,11 +74,7 @@ function postMenuItem(req, res, next) {
   let menuItem: MenuItem;
   menuItem = new MenuItemModel(req.body);
   menuItem
-    .save()
-    .then(() => {
-      return res.json(menuItem);
-    })
-    .catch(next);
+    .save().then(() => res.json(menuItem)).catch(next);
 }
 
 function putMenuItem(req, res, next) {
@@ -97,10 +93,7 @@ function putMenuItem(req, res, next) {
       if (kind) menuItem.kind = kind;
       menuItem
         .save()
-        .then(() => {
-          return res.send();
-        })
-        .catch(next);
+        .then(() => res.send()).catch(next);
     })
     .catch(next);
 }
@@ -112,10 +105,7 @@ function deleteMenuItem(req, res, next) {
         return res.status(404).json(error("MenuItem not found"));
       }
       MenuItemModel.deleteOne({ _id: req.params.idM })
-        .then(() => {
-          return res.send();
-        })
-        .catch(next);
+        .then(() => res.send()).catch(next);
     })
     .catch(next);
 }
