@@ -253,8 +253,8 @@ function postTableOrder(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT }).then(table => {
     if (!table)
       return res.status(404).json(error("Table not found"))
-    if (table.servedBy !== req.user._id)
-      return res.status(403).json(error("This is not your table!!!"))
+    if (table.servedBy.toString() !== req.user._id)
+      return res.status(403).json(error("Forbidden, you are not serving this table"))
     req.body.table = req.urlParams.idT;
     let order: Order;
     switch (kind) {
@@ -279,7 +279,7 @@ function putServeOrders(req, res, next) {
     if (!table)
       return res.status(404).json(error("Table not found"))
     if (table.servedBy !== req.user._id)
-      return res.status(403).json(error("This is not your table!!!"))
+      return res.status(403).json(error("Forbidden, you are not serving this table"))
     if (req.query.orderKind === OrderKind.FoodOrder)
       if (table.foodOrdersStatus !== TableOrderStatus.Ready)
         return res.status(403).json(error("Orders not ready"))
