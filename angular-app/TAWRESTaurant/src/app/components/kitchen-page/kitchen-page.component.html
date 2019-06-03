@@ -1,31 +1,37 @@
 <!--Ordine in preparazione-->
 <app-live-orders
-  [filter]="{user: auth['_id'], status: OrderStatus.Preparing}">
-  <ng-template
-    let-loading="loading" let-orders="orders">
-    <ngb-alert type="info"
+  [filter]="{ user: auth['_id'], status: OrderStatus.Preparing }"
+>
+  <ng-template let-loading="loading" let-orders="orders">
+    <ngb-alert
+      type="info"
       [dismissible]="false"
-      *ngIf="!loading && orders.length === 0">
+      *ngIf="!loading && orders.length === 0"
+    >
       Nessun ordine in preparazione
     </ngb-alert>
     <app-order-content
       *ngIf="order.kind === kind"
       [order]="orders[0]"
       [show]="{
-        order[ref].name: true,
-        order[ref].preparationTime: true
-      }">
+        'order.cook.name': true,
+        'order.food.preparationTime': true
+      }"
+    >
     </app-order-content>
   </ng-template>
 </app-live-orders>
 <!--Tavoli con ordini da preparare-->
 <app-live-tables
-  [filter]="{status: 'Pending'}"
-  [sort]="[{by: ordersTakenAt}]">
+  [filter]="{ status: 'Pending' }"
+  [sort]="[{ by: ordersTakenAt }]"
+>
   <ng-template let-loading="loading" let-tables="tables">
-    <ngb-alert type="info"
+    <ngb-alert
+      type="info"
       [dismissible]="false"
-      *ngIf="!loading && tables.length === 0">
+      *ngIf="!loading && tables.length === 0"
+    >
       Nessun tavolo con ordini da preparare
     </ngb-alert>
     <ng-container *ngIf="!loading && tables.length > 0">
@@ -33,27 +39,33 @@
         <app-table-content [table]="table">
           <app-live-orders
             *ngIf="table === tables[0]"
-            [filter]="{table: table['_id'], status: 'Pending', kind: kind}"
-            [sort]="[{by: 'preparationTime', desc: true}]">
-            <ngb-alert type="info"
+            [filter]="{ table: table['_id'], status: 'Pending', kind: kind }"
+            [sort]="[{ by: 'preparationTime', desc: true }]"
+          >
+            <ngb-alert
+              type="info"
               [dismissible]="false"
-              *ngIf="!loading && orders.length === 0">
+              *ngIf="!loading && orders.length === 0"
+            >
               Nessun ordine da preparare
             </ngb-alert>
             <div class="card px-3 py-3 mb-2" *ngFor="let order of orders">
               <app-order-content
                 [order]="order"
                 [show]="{
-                  order[ref].name: true,
-                  order[ref].preparationTime: true
-                }">
+                  'order.food.name': true,
+                  'order.food.preparationTime': true
+                }"
+              >
                 <div section="pre" class="float-right">
-                    <button class="btn btn-success"
-                      [disable]="order !== order[0]"
-                      (click)="prepare(table, order)">
-                      Prepara
-                    </button>
-                  </div>
+                  <button
+                    class="btn btn-success"
+                    [disabled]="order !== order[0]"
+                    (click)="prepare(table, order)"
+                  >
+                    Prepara
+                  </button>
+                </div>
               </app-order-content>
             </div>
           </app-live-orders>
