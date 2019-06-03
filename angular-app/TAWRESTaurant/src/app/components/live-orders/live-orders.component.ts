@@ -44,7 +44,7 @@ export class LiveOrdersComponent implements OnInit, OnDestroy {
       this.loading = false;
 
       this.orders = orders;
-      if (this.orders.length > 0) {
+      if (this.sort.length > 0) {
         this.orders.sort(this.compareOrders(this.sort));
       }
 
@@ -62,6 +62,9 @@ export class LiveOrdersComponent implements OnInit, OnDestroy {
 
           if (this.orderIsFiltered(order)) {
             this.orders.push(order);
+            if (this.sort.length > 0) {
+              this.orders.sort(this.compareOrders(this.sort));
+            }
           }
         });
     });

@@ -43,7 +43,7 @@ export class LiveTablesComponent implements OnInit, OnDestroy {
       this.loading = false;
 
       this.tables = tables;
-      if (this.tables.length > 0) {
+      if (this.sort.length > 0) {
         this.tables.sort(this.compareTables(this.sort));
       }
 
@@ -61,7 +61,9 @@ export class LiveTablesComponent implements OnInit, OnDestroy {
 
           if (this.tableIsFiltered(table)) {
             this.tables.push(table);
-            this.tables.sort(this.compareTables(this.sort));
+            if (this.sort.length > 0) {
+              this.tables.sort(this.compareTables(this.sort));
+            }
           }
         });
     });
