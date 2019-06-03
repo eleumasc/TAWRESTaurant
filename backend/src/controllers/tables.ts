@@ -151,27 +151,25 @@ function freeTable(table: Table, req, res, next) {
     return res.status(400).json(error("Table is already free"));
   OrderModel.deleteMany({ table: table._id })
     .then(() => {
-      let numOfCustomers = table.numOfCustomers;
-      WaiterModel.findOne({ _id: table.servedBy }).then(waiter => {
-        waiter.totalServedCustomers += numOfCustomers;
-        waiter
-          .save()
-          .then()
-          .catch(next);
-      });
-      table.status = TableStatus.Free;
-      table.numOfCustomers = 0;
-      table.servedBy = null;
-      table.ordersTakenAt = null;
-      table.foodOrdersStatus = null;
-      table.beverageOrdersStatus = null;
-      table
-        .save()
+      WaiterModel.updateOne({ _id: table.servedBy },
+        { $inc: { totalServedCustomers: table.numOfCustomers } })
         .then(() => {
-          io.emit("table status changed", table);
-          res.send();
+          table.status = TableStatus.Free;
+          table.numOfCustomers = 0;
+          table.servedBy = null;
+          table.ordersTakenAt = null;
+          table.foodOrdersStatus = null;
+          table.beverageOrdersStatus = null;
+          table
+            .save()
+            .then(() => {
+              io.emit("table status changed", table);
+              res.send();
+            })
+            .catch(next);
         })
         .catch(next);
+
     })
     .catch(next);
 }

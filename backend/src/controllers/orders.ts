@@ -36,6 +36,10 @@ const tableFoodOrders: Route = {
       checkRequest(isCreateOrderForm)
     ],
     callback: postTableOrder
+  },
+  PUT: {
+    middlewares: [setQuery(["orderKind"], [OrderKind.FoodOrder]), userHasRole([UserRole.Waiter])],
+    callback: putServeOrders
   }
 };
 
@@ -48,6 +52,10 @@ const tableBeverageOrders: Route = {
   POST: {
     middlewares: [setBody(["kind"], [OrderKind.BeverageOrder])],
     callback: postTableOrder
+  },
+  PUT: {
+    middlewares: [setQuery(["orderKind"], [OrderKind.BeverageOrder]), userHasRole([UserRole.Waiter])],
+    callback: putServeOrders
   }
 };
 
@@ -145,13 +153,14 @@ function putTableOrder(req, res, next) {
     table: req.urlParams.idT
   }).then((order: any) => {
     if (!order) return res.status(404).json(error("Order not found"));
+    if (!((req.user.role === UserRole.Cook &&
+      order.kind === OrderKind.FoodOrder) ||
+      (req.user.role === UserRole.Barman &&
+        order.kind === OrderKind.BeverageOrder)))
+      return res.status(403).json(error("This is not you kind of order!!!"))
     if (
       req.query.action === ChangeOrderStatus.Assign &&
-      order.status === OrderStatus.Pending &&
-      ((req.user.role === UserRole.Cook &&
-        order.kind === OrderKind.FoodOrder) ||
-        (req.user.role === UserRole.Barman &&
-          order.kind === OrderKind.BeverageOrder))
+      order.status === OrderStatus.Pending
     )
       return assignOrder(order, req, res, next);
     if (
@@ -174,7 +183,7 @@ function putTableOrder(req, res, next) {
 function assignOrder(order, req, res, next) {
   let filter: any = { status: OrderStatus.Preparing };
   let model: mongoose.Model<Order>;
-  if (req.user.role === UserRole.Cook) {
+  if (order.kind === OrderKind.FoodOrder) {
     model = FoodOrderModel;
     filter.cook = req.user._id;
   } else {
@@ -187,11 +196,14 @@ function assignOrder(order, req, res, next) {
         .status(403)
         .json(error(req.user.role + " has already an order assigned"));
     order.status = OrderStatus.Preparing;
-    order[req.user.role.toLowerCase()] = req.user._id;
+    if (order.kind === OrderKind.FoodOrder)
+      order.cook = req.user._id;
+    else
+      order.barman = req.user._id;
     order
       .save()
       .then(() => {
-        io.to(req.user.role).emit("order is preparing", order);
+        io.to(req.user.role).emit("order status changed", order);
         res.json(order);
       })
       .catch(next);
@@ -203,32 +215,20 @@ function notifyOrder(order, req, res, next) {
   order
     .save()
     .then(() => {
-      io.to(UserRole.Waiter).emit("order is ready", order);
+      io.emit("order status changed", order);
       OrderModel.countDocuments({
         table: order.table,
         status: { $not: OrderStatus.Ready }
       });
       switch (req.user.role) {
         case UserRole.Barman:
-          BarmanModel.findOne({ _id: req.user._id })
-            .then((barman: Barman) => {
-              barman.totalPreparedBeverages++;
-              barman
-                .save()
-                .then()
-                .catch(next);
-            })
+          BarmanModel.updateOne({ _id: req.user._id }, { $inc: { totalPreparedBeverages: 1 } })
+            .then()
             .catch(next);
           break;
         case UserRole.Cook:
-          CookModel.findOne({ _id: req.user._id })
-            .then((cook: Cook) => {
-              cook.totalPreparedDishes++;
-              cook
-                .save()
-                .then()
-                .catch(next);
-            })
+          CookModel.updateOne({ _id: req.user._id }, { $inc: { totalPreparedDishes: 1 } })
+            .then()
             .catch(next);
           break;
       }
@@ -253,20 +253,52 @@ function deleteTableOrder(req, res, next) {
 
 function postTableOrder(req, res, next) {
   const { kind } = req.body;
-  req.body.table = req.urlParams.idT;
-  let order: Order;
-  switch (kind) {
-    case OrderKind.FoodOrder:
-      order = new FoodOrderModel(req.body);
-      break;
-    case OrderKind.BeverageOrder:
-      order = new BeverageOrderModel(req.body);
-      break;
-  }
-  order
-    .save()
-    .then(() => {
-      res.json(order);
-    })
-    .catch(next);
+  TableModel.findOne({ _id: req.urlParams.idT }).then(table => {
+    if (!table)
+      return res.status(404).json(error("Table not found"))
+    if (table.servedBy !== req.user._id)
+      return res.status(403).json(error("This is not your table!!!"))
+    req.body.table = req.urlParams.idT;
+    let order: Order;
+    switch (kind) {
+      case OrderKind.FoodOrder:
+        order = new FoodOrderModel(req.body);
+        break;
+      case OrderKind.BeverageOrder:
+        order = new BeverageOrderModel(req.body);
+        break;
+    }
+    order
+      .save()
+      .then(() => {
+        res.json(order);
+      })
+      .catch(next);
+  }).catch(next)
+
+}
+
+function putServeOrders(req, res, next) {
+  if (!(req.query.action === "notify-served"))
+    return res.status(400).json(error("Bad request"));
+  TableModel.findOne({ _id: req.urlParams.idT }).then(table => {
+    if (!table)
+      return res.status(404).json(error("Table not found"))
+    if (table.servedBy !== req.user._id)
+      return res.status(403).json(error("This is not your table!!!"))
+    if (req.query.orderKind === OrderKind.FoodOrder)
+      if (table.foodOrdersStatus !== TableOrderStatus.Ready)
+        return res.status(403).json(error("Orders not ready"))
+      else
+        table.foodOrdersStatus = TableOrderStatus.Served;
+    else
+      if (table.beverageOrdersStatus !== TableOrderStatus.Ready)
+        return res.status(403).json(error("Orders not ready"))
+      else
+        table.beverageOrdersStatus = TableOrderStatus.Served;
+    table.save().then(() => {
+      io.emit("table status changed", table);
+      res.send();
+    }).catch(next);
+  }).catch(next)
 }
