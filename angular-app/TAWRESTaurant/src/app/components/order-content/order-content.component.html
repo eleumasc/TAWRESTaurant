@@ -2,15 +2,9 @@
   <div class="card-body">
     <ng-content select="div [section='pre']"></ng-content>
 
-    <h5 class="card-title float-right mr-2">
-      {{
-        show &&
-          show.price &&
-          "€ " +
-            (order.kind === "FoodOrder"
-              ? order.food.price
-              : order.beverage.price)
-      }}
+    <h5 class="card-title float-right mr-2" *ngIf="show && show.price">
+      &euro;
+      {{ order.kind === "FoodOrder" ? order.food.price : order.beverage.price }}
     </h5>
     <h5 class="card-title">
       <i
@@ -22,18 +16,17 @@
         order.kind === "FoodOrder" ? order.food.name : order.beverage.name
       }}
     </h5>
-    <h6 class="card-subtitle text-muted mb-2">
-      {{ show && show.status && order.status }}
+    <h6 class="card-subtitle text-muted mb-2" *ngIf="show && show.status">
+      {{ order.status }}
     </h6>
-    <p class="card-text">
+    <p class="card-text" *ngIf="show && show.preparationTime">
+      Tempo di preparazione:
       {{
-        show &&
-          show.preparationTime &&
-          "Tempo di preparazione: " +
-            (order.kind === "FoodOrder"
-              ? order.food.preparationTime
-              : order.beverage.preparationTime)
+        order.kind === "FoodOrder"
+          ? order.food.preparationTime
+          : order.beverage.preparationTime
       }}
+      minuti
     </p>
 
     <ng-content select="div [section='post']"></ng-content>

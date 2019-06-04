@@ -15,8 +15,8 @@ export class NavUserProfileComponent implements OnInit {
 
   ngOnInit() {}
 
-  async logout() {
-    await this.authService.clearToken();
+  logout() {
+    this.authService.clearToken();
     this.router.navigate(["/login"]);
   }
 }

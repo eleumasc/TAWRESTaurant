@@ -1,0 +1,24 @@
+<div class="modal-header">
+  <h4 class="modal-title">Conto del tavolo {{ table.number }}</h4>
+  <button type="button" class="close" (click)="activeModal.dismiss()">
+    <span>&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="mb-2" style="max-height: 320px; overflow-y: scroll" #bill>
+    <div class="list-group list-group-flush">
+      <div class="list-group-item" *ngFor="let order of orders">
+        <app-order-content
+          [order]="order"
+          [show]="{ price: true }"
+        ></app-order-content>
+      </div>
+    </div>
+  </div>
+  <h5 class="text-right">Totale: € {{ totalPrice }}</h5>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="freeTable()">
+    Fine
+  </button>
+</div>
