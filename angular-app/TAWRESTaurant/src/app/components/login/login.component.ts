@@ -31,8 +31,8 @@ export class LoginComponent implements OnInit {
 
     this.loginService
       .login(formValue.username, formValue.password)
-      .then(async res => {
-        await this.authService.setToken(res.token);
+      .then(res => {
+        this.authService.setToken(res.token);
         this.router.navigate(["/home"]);
       })
       .catch(err => {

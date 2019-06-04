@@ -32,10 +32,12 @@ import { UsersPageComponent } from "./components/users-page/users-page.component
 import { CreateUserModalContentComponent } from "./components/create-user-modal-content/create-user-modal-content.component";
 import { ChangePasswordModalContentComponent } from "./components/change-password-modal-content/change-password-modal-content.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
+import { BillModalContentComponent } from "./components/bill-modal-content/bill-modal-content.component";
 import { WaiterTablesPageComponent } from "./components/waiter-tables-page/waiter-tables-page.component";
 import { OccupyTableModalContentComponent } from "./components/occupy-table-modal-content/occupy-table-modal-content.component";
 import { TakeOrdersModalContentComponent } from "./components/take-orders-modal-content/take-orders-modal-content.component";
 import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.component";
+import { InfoComponent } from './components/info/info.component';
 
 @NgModule({
   declarations: [
@@ -55,14 +57,17 @@ import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.com
     CreateUserModalContentComponent,
     ChangePasswordModalContentComponent,
     TablesPageComponent,
+    BillModalContentComponent,
     WaiterTablesPageComponent,
     OccupyTableModalContentComponent,
     TakeOrdersModalContentComponent,
-    KitchenPageComponent
+    KitchenPageComponent,
+    InfoComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,
     ChangePasswordModalContentComponent,
+    BillModalContentComponent,
     OccupyTableModalContentComponent,
     TakeOrdersModalContentComponent
   ],
