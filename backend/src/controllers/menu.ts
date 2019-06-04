@@ -42,15 +42,19 @@ function getMenuItems(req, res, next) {
   if (name && typeof name === "string") {
     filter.name = name;
   }
-  if (price && typeof price === "number") {
-    filter.price = { $lt: price - 1, $gt: price - 1 };
+  if (price && !isNaN(price)) {
+    filter.price = { $lte: parseFloat(price) + 1, $gte: parseFloat(price) - 1 };
   }
-  if (preparationTime && typeof preparationTime === "number") {
-    filter.preparationTime = preparationTime;
+  if (preparationTime && !isNaN(preparationTime)) {
+    filter.preparationTime = {
+      $lte: parseFloat(preparationTime) + 1,
+      $gte: parseFloat(preparationTime) - 1
+    };
   }
   if (kind && isMenuItemKind(kind)) {
     filter.kind = kind;
   }
+
   MenuItemModel.find(filter)
     .then(menuItems => res.json(menuItems))
     .catch(next);
