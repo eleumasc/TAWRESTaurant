@@ -1,5 +1,10 @@
 import { jwtAuth } from "../middlewares/jwtAuth";
 import { userHasRole } from "../middlewares/userHasRole";
+import { Route } from ".";
+import { addParams } from "../middlewares/addParams";
+import { setQuery } from "../middlewares/setQuery";
+import { setBody } from "../middlewares/setBody";
+import { checkRequest } from "../middlewares/checkRequest";
 import { error } from "../helpers/error";
 import {
   UserModel,
@@ -13,11 +18,6 @@ import {
 } from "../models";
 import { UserRole, User } from "../models/user";
 import { isCreateUserForm, isChangePassword } from "../models/forms/user";
-import { Route } from ".";
-import { addParams } from "../middlewares/addParams";
-import { setQuery } from "../middlewares/setQuery";
-import { setBody } from "../middlewares/setBody";
-import { checkRequest } from "../middlewares/checkRequest";
 
 const barmans: Route = {
   path: "/barmans",

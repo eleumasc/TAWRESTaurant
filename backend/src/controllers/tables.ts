@@ -1,22 +1,21 @@
+import { io } from "../server";
 import { jwtAuth } from "../middlewares/jwtAuth";
 import { userHasRole } from "../middlewares/userHasRole";
+import { Route } from ".";
+import { addParams } from "../middlewares/addParams";
+import { checkRequest } from "../middlewares/checkRequest";
 import { error } from "../helpers/error";
-import { TableModel, OrderModel, WaiterModel } from "../models";
+import { WaiterModel, TableModel, OrderModel } from "../models";
+import { ObjectId } from "bson";
 import { UserRole } from "../models/user";
+import { Table, TableStatus, isTableStatus } from "../models/table";
 import {
   isCreateTableForm,
   isOccupyFreeRequest,
   ChangeStatus
 } from "../models/forms/table";
-import { Table, TableStatus, isTableStatus } from "../models/table";
-import { ObjectId } from "bson";
 import { isOrderStatus } from "../models/order";
-import { Route } from ".";
-import { addParams } from "../middlewares/addParams";
 import { tableByIdOrders as tableByIdOrdersRoute } from "./orders";
-import { io } from "../server";
-import { checkRequest } from "../middlewares/checkRequest";
-import { asyncWrap } from "../middlewares/asyncWrapper";
 
 export const tables: Route = {
   path: "/tables",
@@ -29,11 +28,11 @@ export const tables: Route = {
       GET: { callback: getTable },
       PUT: {
         middlewares: [checkRequest(isOccupyFreeRequest)],
-        callback: putChangeTableStatus
+        callback: changeTableStatus
       },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
-        callback: asyncWrap(deleteTable)
+        callback: deleteTable
       }
     }
   ],
@@ -43,7 +42,7 @@ export const tables: Route = {
       userHasRole([UserRole.Cashier]),
       checkRequest(isCreateTableForm)
     ],
-    callback: asyncWrap(createTable)
+    callback: createTable
   }
 };
 
@@ -55,6 +54,7 @@ function getTables(req, res, next) {
     foodOrdersStatus,
     beverageOrdersStatus
   } = req.query;
+
   const filter: any = {};
   if (seats) filter.seats = { $gte: parseInt(seats) };
   if (status && isTableStatus(status)) filter.status = status;
@@ -63,8 +63,8 @@ function getTables(req, res, next) {
     filter.foodOrdersStatus = servedById;
   if (beverageOrdersStatus && isOrderStatus(beverageOrdersStatus))
     filter.beverageOrdersStatus = servedById;
+
   TableModel.find(filter)
-    .sort({ ordersTakenAt: "asc" })
     .then(tables => res.json(tables))
     .catch(next);
 }
@@ -78,28 +78,17 @@ function getTable(req, res, next) {
     .catch(next);
 }
 
-/*async function getTable(req, res, next) {
-  let table: Table = await TableModel.findOne({ _id: req.urlParams.idT });
-  if (!table) return res.status(404).json(error("Table not found"));
-  return res.json(table);
-}*/
-
-/*function createTable(req, res, next) {
-  let table: Table;
-  table = new TableModel(req.body);
+function createTable(req, res, next) {
+  const table: Table = new TableModel(req.body);
   table
     .save()
-    .then(() => res.json(table))
+    .then(() => {
+      res.json(table);
+    })
     .catch(next);
-}*/
-
-async function createTable(req, res, next) {
-  let table: Table = new TableModel(req.body);
-  await table.save();
-  res.json(table);
 }
 
-function putChangeTableStatus(req, res, next) {
+function changeTableStatus(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then((table: Table) => {
       if (!table) return res.status(404).json(error("Table not found"));
@@ -131,12 +120,15 @@ function putChangeTableStatus(req, res, next) {
 function occupyTable(table: Table, req, res, next) {
   if (table.seats < req.body.numOfCustomers)
     return res.status(400).json(error("Not enough seats"));
+
   if (table.status !== TableStatus.Free)
-    return res.status(400).json(error("Table is already occupied"));
+    return res.status(409).json(error("Table is already occupied"));
+
   table.status = TableStatus.NotServed;
   table.numOfCustomers = req.body.numOfCustomers;
   table.servedBy = req.user._id;
   table.occupiedAt = new Date();
+
   table
     .save()
     .then(() => {
@@ -148,52 +140,50 @@ function occupyTable(table: Table, req, res, next) {
 
 function freeTable(table: Table, req, res, next) {
   if (table.status === TableStatus.Free)
-    return res.status(400).json(error("Table is already free"));
+    return res.status(409).json(error("Table is already free"));
+
   OrderModel.deleteMany({ table: table._id })
     .then(() => {
-      WaiterModel.updateOne({ _id: table.servedBy },
-        { $inc: { totalServedCustomers: table.numOfCustomers } })
+      table.status = TableStatus.Free;
+      table.numOfCustomers = 0;
+      table.servedBy = null;
+      table.occupiedAt = null;
+      table.ordersTakenAt = null;
+      table.foodOrdersStatus = null;
+      table.beverageOrdersStatus = null;
+
+      table
+        .save()
         .then(() => {
-          table.status = TableStatus.Free;
-          table.numOfCustomers = 0;
-          table.servedBy = null;
-          table.ordersTakenAt = null;
-          table.foodOrdersStatus = null;
-          table.beverageOrdersStatus = null;
-          table
-            .save()
-            .then(() => {
-              io.emit("table status changed", table);
-              res.send();
-            })
+          WaiterModel.updateOne(
+            { _id: table.servedBy },
+            { $inc: { totalServedCustomers: table.numOfCustomers } }
+          )
+            .then(() => {})
             .catch(next);
+
+          io.emit("table status changed", table);
+          res.send();
         })
         .catch(next);
-
     })
     .catch(next);
 }
 
-/*function deleteTable(req, res, next) {
-  TableModel.findOne({ _id: req.urlParams.idT })
-    .then(table => {
+function deleteTable(req, res, next) {
+  TableModel.findOne({
+    _id: req.urlParams.idT
+  })
+    .then((table: Table) => {
       if (!table) {
         return res.status(404).json(error("Table not found"));
       }
+
       TableModel.deleteOne({ _id: req.urlParams.idT })
-        .then(() => res.send())
+        .then(() => {
+          res.send();
+        })
         .catch(next);
     })
     .catch(next);
-}*/
-
-async function deleteTable(req, res, next) {
-  let table: Table = await TableModel.findOne({
-    _id: req.urlParams.idT
-  }).then();
-  if (!table) {
-    return res.status(404).json(error("Table not found"));
-  }
-  await TableModel.deleteOne({ _id: req.urlParams.idT }).then();
-  res.send();
 }

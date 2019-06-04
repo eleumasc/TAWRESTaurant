@@ -1,15 +1,15 @@
+import { jwtAuth } from "../middlewares/jwtAuth";
 import { userHasRole } from "../middlewares/userHasRole";
+import { Route } from ".";
+import { addParams } from "../middlewares/addParams";
 import { error } from "../helpers/error";
-import { MenuItemModel } from "../models";
 import { UserRole } from "../models/user";
+import { MenuItemModel } from "../models";
+import { MenuItem, isMenuItemKind } from "../models/menuItem";
 import {
   isCreateMenuItemForm,
   isChangeMenuItemForm
 } from "../models/forms/menuItem";
-import { MenuItem, isMenuItemKind } from "../models/menuItem";
-import { Route } from ".";
-import { addParams } from "../middlewares/addParams";
-import { jwtAuth } from "../middlewares/jwtAuth";
 
 export const menu: Route = {
   path: "/menu",
@@ -74,7 +74,9 @@ function postMenuItem(req, res, next) {
   let menuItem: MenuItem;
   menuItem = new MenuItemModel(req.body);
   menuItem
-    .save().then(() => res.json(menuItem)).catch(next);
+    .save()
+    .then(() => res.json(menuItem))
+    .catch(next);
 }
 
 function putMenuItem(req, res, next) {
@@ -93,7 +95,8 @@ function putMenuItem(req, res, next) {
       if (kind) menuItem.kind = kind;
       menuItem
         .save()
-        .then(() => res.send()).catch(next);
+        .then(() => res.send())
+        .catch(next);
     })
     .catch(next);
 }
@@ -105,7 +108,8 @@ function deleteMenuItem(req, res, next) {
         return res.status(404).json(error("MenuItem not found"));
       }
       MenuItemModel.deleteOne({ _id: req.params.idM })
-        .then(() => res.send()).catch(next);
+        .then(() => res.send())
+        .catch(next);
     })
     .catch(next);
 }
