@@ -19,7 +19,9 @@ import {
 export class TakeOrdersModalContentComponent implements OnInit {
   @Input() table: Table;
 
-  menuItems: MenuItem[];
+  orders: Order[] = [];
+
+  menuItems: MenuItem[] = [];
 
   constructor(
     private activeModal: NgbActiveModal,
@@ -28,26 +30,47 @@ export class TakeOrdersModalContentComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.ordersService
+      .getOrders({ table: this.table._id })
+      .then((orders: Order[]) => {
+        this.orders = orders;
+      })
+      .catch(err => {
+        alert(err.message);
+      });
+
     this.menuItemsService.getMenuItems({}).then(menuItems => {
       this.menuItems = menuItems;
     });
   }
 
   addOrder(menuItem: MenuItem) {
-    this.ordersService.addOrder(
-      this.table,
-      menuItem.kind === MenuItemKind.Food
-        ? { food: <Food>menuItem }
-        : { beverage: <Beverage>menuItem }
-    );
+    this.ordersService
+      .addOrder(
+        this.table,
+        menuItem.kind === MenuItemKind.Food
+          ? { food: <Food>menuItem }
+          : { beverage: <Beverage>menuItem }
+      )
+      .then((order: Order) => {
+        this.orders.push(order);
+      })
+      .catch(err => {
+        alert(err.message);
+      });
   }
 
   deleteOrder(order: Order) {
     this.ordersService
       .deleteOrder(this.table, order)
-      .then(() => {})
-      .catch(() => {
-        alert("Si è verificato un errore");
+      .then(() => {
+        const orderIdx = this.orders.indexOf(order);
+        if (orderIdx >= 0) {
+          this.orders.splice(orderIdx, 1);
+        }
+      })
+      .catch(err => {
+        alert(err.message);
       });
   }
 
@@ -62,8 +85,8 @@ export class TakeOrdersModalContentComponent implements OnInit {
         .then(() => {
           this.activeModal.close();
         })
-        .catch(() => {
-          alert("Si è verificato un errore");
+        .catch(err => {
+          alert(err.message);
         });
     }
   }

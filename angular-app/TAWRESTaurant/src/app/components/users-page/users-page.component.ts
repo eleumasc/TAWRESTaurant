@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { UsersService } from "src/app/services/users.service";
-import { User } from "src/app/models/User";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { CreateUserModalContentComponent } from "../create-user-modal-content/create-user-modal-content.component";
 import { ChangePasswordModalContentComponent } from "../change-password-modal-content/change-password-modal-content.component";
+import { User } from "src/app/models/User";
 
 @Component({
   selector: "app-users-page",
@@ -33,8 +33,8 @@ export class UsersPageComponent implements OnInit {
           .then((user: User) => {
             this.users.push(user);
           })
-          .catch(() => {
-            alert("Si è verificato un errore.");
+          .catch(err => {
+            alert(err);
           });
       })
       .catch(() => {});
@@ -60,8 +60,8 @@ export class UsersPageComponent implements OnInit {
               );
             }, 250);
           })
-          .catch(() => {
-            alert("Si è verificato un errore.");
+          .catch(err => {
+            alert(err);
           });
       })
       .catch(() => {});
@@ -78,8 +78,8 @@ export class UsersPageComponent implements OnInit {
         .then(() => {
           this.users = this.users.filter(user1 => user._id !== user1._id);
         })
-        .catch(() => {
-          alert("Si è verificato un errore.");
+        .catch(err => {
+          alert(err);
         });
     }
   }

@@ -1,17 +1,18 @@
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from "src/app/services/auth.service";
 import { OrdersService } from "src/app/services/orders.service";
-import { OrderKind } from "src/app/models/Order";
-import { Table } from "src/app/models/Table";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { OccupyTableModalContentComponent } from "../occupy-table-modal-content/occupy-table-modal-content.component";
 import { TakeOrdersModalContentComponent } from "../take-orders-modal-content/take-orders-modal-content.component";
+import { Table } from "src/app/models/Table";
+import { OrderKind } from "src/app/models/Order";
 
 @Component({
-  selector: "app-my-tables",
-  templateUrl: "./my-tables.component.html",
-  styleUrls: ["./my-tables.component.css"]
+  selector: "app-waiter-tables-page",
+  templateUrl: "./waiter-tables-page.component.html",
+  styleUrls: ["./waiter-tables-page.component.css"]
 })
-export class MyTablesComponent implements OnInit {
+export class WaiterTablesPageComponent implements OnInit {
   servedBy: string;
 
   constructor(
@@ -24,6 +25,10 @@ export class MyTablesComponent implements OnInit {
     this.servedBy = this.authService.getUser()._id;
   }
 
+  openOccupyTableModal() {
+    this.modalService.open(OccupyTableModalContentComponent);
+  }
+
   openTakeOrdersModal(table: Table) {
     const modalRef = this.modalService.open(TakeOrdersModalContentComponent);
 
@@ -34,8 +39,8 @@ export class MyTablesComponent implements OnInit {
     this.ordersService
       .notifyServedOrders(table, kind)
       .then(() => {})
-      .catch(() => {
-        alert("Si è verificato un errore");
+      .catch(err => {
+        alert(err);
       });
   }
 }

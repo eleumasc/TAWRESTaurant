@@ -1,0 +1,62 @@
+<button class="btn btn-primary mb-4" (click)="openOccupyTableModal()">
+  Occupa tavolo
+</button>
+
+<app-live-tables
+  [filter]="{ servedBy: servedBy }"
+  [sort]="[{ by: 'occupiedAt' }]"
+>
+  <ng-template let-loading="loading" let-tables="tables">
+    <ng-container *ngIf="!loading && tables.length === 0">
+      <ngb-alert type="info" [dismissible]="false"
+        >Nessun tavolo da servire</ngb-alert
+      >
+    </ng-container>
+
+    <ng-container *ngIf="!loading && tables.length > 0">
+      <div class="mb-1" *ngFor="let table of tables">
+        <ng-container *ngIf="table.status === 'not-served'">
+          <app-table-content [table]="table" [show]="{ status: true }">
+            <div section="pre" class="float-right">
+              <button
+                class="btn btn-primary"
+                (click)="openTakeOrdersModal(table)"
+              >
+                Ordini
+              </button>
+            </div>
+          </app-table-content>
+        </ng-container>
+
+        <ng-container *ngIf="table.status === 'waiting'">
+          <app-table-content
+            [table]="table"
+            [show]="{
+              status: true,
+              foodOrdersStatus: true,
+              beverageOrdersStatus: true
+            }"
+          >
+            <div section="pre" class="float-right">
+              <button
+                class="btn btn-primary"
+                (click)="notifyServed(table, 'FoodOrder')"
+                *ngIf="table.foodOrdersStatus === 'ready'"
+              >
+                Piatti serviti
+              </button>
+
+              <button
+                class="btn btn-primary"
+                (click)="notifyServed(table, 'BeverageOrder')"
+                *ngIf="table.beverageOrdersStatus === 'ready'"
+              >
+                Bevande servite
+              </button>
+            </div></app-table-content
+          >
+        </ng-container>
+      </div>
+    </ng-container>
+  </ng-template>
+</app-live-tables>

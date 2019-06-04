@@ -1,0 +1,29 @@
+<div class="card">
+  <div class="card-body">
+    <ng-content select="div [section='pre']"></ng-content>
+
+    <h5 class="card-title">{{ user.username }}</h5>
+    <h6 class="card-subtitle text-muted mb-2">
+      {{ user.name }} {{ user.surname }}
+    </h6>
+    <p class="card-text">
+      Ruolo: <i>{{ user.role }}</i>
+    </p>
+
+    <ng-container *ngIf="show && show.stats">
+      <ul class="card-text" *ngIf="user.role === 'Waiter'">
+        <li>Numero di clienti serviti: {{ user.totalServedCustomers }}</li>
+      </ul>
+
+      <ul class="card-text" *ngIf="user.role === 'Cook'">
+        <li>Numero di piatti preparati: {{ user.totalPreparedDishes }}</li>
+      </ul>
+
+      <ul class="card-text" *ngIf="user.role === 'Barman'">
+        <li>Numero di bevande preparate: {{ user.totalPreparedBeverages }}</li>
+      </ul>
+    </ng-container>
+
+    <ng-content select="div [section='post']"></ng-content>
+  </div>
+</div>

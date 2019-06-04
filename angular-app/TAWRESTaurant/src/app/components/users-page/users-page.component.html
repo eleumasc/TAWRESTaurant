@@ -1,53 +1,26 @@
-<div class="row mb-4">
-  <div class="col-xl-12">
-    <button class="btn btn-success" (click)="addUser()">
-      <i class="fa fa-user-plus"></i>&nbsp;Crea utente
-    </button>
-  </div>
-</div>
+<button class="btn btn-success mb-4" (click)="addUser()">
+  <i class="fas fa-user-plus"></i>&nbsp;Crea utente
+</button>
 
-<div class="row">
-  <div class="col-xl-12 mb-2" *ngFor="let user of users">
-    <div class="card">
-      <div class="card-body">
-        <div
-          ngbDropdown
-          class="d-inline-block float-right"
-          placement="bottom-right"
-        >
-          <button class="btn btn-secondary" ngbDropdownToggle>
-            <i class="fa fa-gear"></i>&nbsp;
-          </button>
-          <div ngbDropdownMenu>
-            <button ngbDropdownItem (click)="changePassword(user)">
-              <i class="fa fa-key"></i>&nbsp;Cambia password
-            </button>
-            <button ngbDropdownItem (click)="deleteUser(user)">
-              <i class="fa fa-user-times"></i>&nbsp;Elimina
-            </button>
-          </div>
-        </div>
-
-        <h5 class="card-title">{{ user.username }}</h5>
-        <h6 class="card-subtitle text-muted mb-2">
-          {{ user.name }} {{ user.surname }}
-        </h6>
-        <p class="card-text">
-          Ruolo: <i>{{ user.role }}</i>
-        </p>
-
-        <ul class="card-text" *ngIf="user.role === 'Waiter'">
-          <li>Numero di clienti serviti: {{ user.totalServedCustomers }}</li>
-        </ul>
-        <ul class="card-text" *ngIf="user.role === 'Cook'">
-          <li>Numero di piatti preparati: {{ user.totalPreparedDishes }}</li>
-        </ul>
-        <ul class="card-text" *ngIf="user.role === 'Barman'">
-          <li>
-            Numero di bevande preparate: {{ user.totalPreparedBeverages }}
-          </li>
-        </ul>
+<div class="mb-1" *ngFor="let user of users">
+  <app-user-content [user]="user">
+    <div
+      section="pre"
+      ngbDropdown
+      class="d-inline-block float-right"
+      placement="bottom-right"
+    >
+      <button class="btn btn-secondary" ngbDropdownToggle>
+        <i class="fas fa-cog"></i>&nbsp;
+      </button>
+      <div ngbDropdownMenu>
+        <button ngbDropdownItem (click)="changePassword(user)">
+          <i class="fas fa-key"></i>&nbsp;Cambia password
+        </button>
+        <button ngbDropdownItem (click)="deleteUser(user)">
+          <i class="fas fa-user-minus"></i>&nbsp;Elimina
+        </button>
       </div>
     </div>
-  </div>
+  </app-user-content>
 </div>

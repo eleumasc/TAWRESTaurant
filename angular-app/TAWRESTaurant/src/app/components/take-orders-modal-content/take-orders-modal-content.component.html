@@ -5,45 +5,40 @@
   </button>
 </div>
 <div class="modal-body">
-  <app-live-orders [filter]="{ table: table['_id'] }" [sort]="[]" #orders>
-    <ng-template let-loading="load" let-orders="orders">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item" *ngFor="let order of orders">
-          <app-order-content [order]="order" [show]="{}">
-            <div section="pre" class="float-right">
-              <button class="btn btn-danger" (click)="deleteOrder(order)">
-                <i class="fa fa-trash"></i>
-              </button>
-            </div>
-          </app-order-content>
-        </li>
-      </ul>
-    </ng-template>
-  </app-live-orders>
-  <button
-    type="button"
-    class="btn btn-primary"
-    [disabled]="orders.orders.length === 0"
-    (click)="commitOrders()"
-  >
-    Consegna
-  </button>
+  <div style="height: 320px; overflow-y: scroll">
+    <div class="mb-1" *ngFor="let order of orders">
+      <app-order-content [order]="order">
+        <div section="pre" class="float-right">
+          <button class="btn btn-danger" (click)="deleteOrder(order)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </app-order-content>
+    </div>
+  </div>
 
-  <div class="card" *ngFor="let menuItem of menuItems">
-    <div class="card-body">
-      <div class="float-right">
-        <button class="btn btn-success" (click)="addOrder(menuItem)">
-          <i class="fa fa-plus"></i>
-        </button>
-      </div>
-      <h5 class="card-title">
-        <i
-          [class]="
-            menuItem.kind === 'Food' ? 'fas fa-utensils' : 'fa fa-coffee'
-          "
-        ></i
-        >&nbsp;{{ menuItem.name }}
-      </h5>
+  <div class="text-right">
+    <button
+      type="button"
+      class="btn btn-primary my-2"
+      [disabled]="orders.length === 0"
+      (click)="commitOrders()"
+    >
+      Consegna
+    </button>
+  </div>
+
+  <hr />
+
+  <div style="height: 320px; overflow-y: scroll">
+    <div class="mb-1" *ngFor="let menuItem of menuItems">
+      <app-menu-item-content [menuItem]="menuItem">
+        <div section="pre" class="float-right">
+          <button class="btn btn-success" (click)="addOrder(menuItem)">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </app-menu-item-content>
     </div>
   </div>
 </div>

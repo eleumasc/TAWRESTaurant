@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FreeTablesPageComponent } from './free-tables-page.component';
+import { MenuItemContentComponent } from './menu-item-content.component';
 
-describe('FreeTablesPageComponent', () => {
-  let component: FreeTablesPageComponent;
-  let fixture: ComponentFixture<FreeTablesPageComponent>;
+describe('MenuItemContentComponent', () => {
+  let component: MenuItemContentComponent;
+  let fixture: ComponentFixture<MenuItemContentComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FreeTablesPageComponent ]
+      declarations: [ MenuItemContentComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FreeTablesPageComponent);
+    fixture = TestBed.createComponent(MenuItemContentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

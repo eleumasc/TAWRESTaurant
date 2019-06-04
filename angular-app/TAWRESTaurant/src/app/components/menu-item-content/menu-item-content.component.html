@@ -1,0 +1,14 @@
+<div class="card">
+  <div class="card-body">
+    <ng-content select="div [section='pre']"></ng-content>
+
+    <h5 class="card-title">
+      <i
+        [class]="menuItem.kind === 'Food' ? 'fas fa-utensils' : 'fas fa-coffee'"
+      ></i
+      >&nbsp;{{ menuItem.name }}
+    </h5>
+
+    <ng-content select="div [section='post']"></ng-content>
+  </div>
+</div>

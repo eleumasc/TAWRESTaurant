@@ -1,0 +1,55 @@
+<div class="modal-header">
+  <h4>Occupa tavolo</h4>
+  <button type="button" class="close" (click)="activeModal.dismiss()">
+    <span>&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form class="mb-4" (submit)="search()">
+    <div class="input-group">
+      <input
+        type="number"
+        class="form-control"
+        placeholder="Numero di clienti"
+        [(ngModel)]="numOfCustomers"
+        name="numOfCustomers"
+        (ngModelChange)="cancelSearch()"
+      />
+      <div class="input-group-append">
+        <button class="btn btn-primary">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <ngb-alert type="info" [dismissible]="false" *ngIf="!searching"
+    >Inserire il numero di clienti per avviare la ricerca</ngb-alert
+  >
+
+  <app-live-tables
+    [filter]="{ seats: numOfCustomers, status: 'free' }"
+    [sort]="[{ by: 'number' }]"
+    *ngIf="searching && numOfCustomers > 0"
+  >
+    <ng-template let-loading="loading" let-tables="tables">
+      <ngb-alert
+        type="info"
+        [dismissible]="false"
+        *ngIf="!loading && tables.length === 0"
+        >Nessun tavolo libero</ngb-alert
+      >
+      <ng-container *ngIf="!loading && tables.length > 0">
+        <div class="mb-1" *ngFor="let table of tables">
+          <app-table-content [table]="table" [show]="{ seats: true }"
+            ><div section="pre" class="float-right">
+              <button class="btn btn-success" (click)="occupyTable(table)">
+                Occupa
+              </button>
+            </div></app-table-content
+          >
+        </div>
+      </ng-container>
+    </ng-template>
+  </app-live-tables>
+</div>

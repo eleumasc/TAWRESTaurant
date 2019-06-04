@@ -9,8 +9,7 @@ import { LoginComponent } from "./components/login/login.component";
 import { HomeComponent } from "./components/home/home.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
-import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
-import { MyTablesComponent } from "./components/my-tables/my-tables.component";
+import { WaiterTablesPageComponent } from "./components/waiter-tables-page/waiter-tables-page.component";
 import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.component";
 import { OrderKind } from "./models/Order";
 
@@ -30,7 +29,7 @@ const routes: Routes = [
     }
   },
   {
-    path: "users",
+    path: "cashier/users",
     component: UsersPageComponent,
     canActivate: [AuthGuardService],
     data: {
@@ -38,7 +37,7 @@ const routes: Routes = [
     }
   },
   {
-    path: "tables",
+    path: "cashier/tables",
     component: TablesPageComponent,
     canActivate: [AuthGuardService],
     data: {
@@ -46,23 +45,15 @@ const routes: Routes = [
     }
   },
   {
-    path: "free-tables",
-    component: FreeTablesPageComponent,
+    path: "waiter/tables",
+    component: WaiterTablesPageComponent,
     canActivate: [AuthGuardService],
     data: {
       roles: [UserRole.Waiter]
     }
   },
   {
-    path: "my-tables",
-    component: MyTablesComponent,
-    canActivate: [AuthGuardService],
-    data: {
-      roles: [UserRole.Waiter]
-    }
-  },
-  {
-    path: "kitchen-page",
+    path: "cook/kitchen",
     component: KitchenPageComponent,
     canActivate: [AuthGuardService],
     data: {
@@ -71,7 +62,7 @@ const routes: Routes = [
     }
   },
   {
-    path: "bar-page",
+    path: "barman/bar",
     component: KitchenPageComponent,
     canActivate: [AuthGuardService],
     data: {

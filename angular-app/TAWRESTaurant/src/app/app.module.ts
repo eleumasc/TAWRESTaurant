@@ -12,8 +12,8 @@ import { AuthGuardService } from "./services/auth-guard.service";
 import { LoginService } from "src/app/services/login.service";
 import { UsersService } from "src/app/services/users.service";
 import { MenuItemsService } from "./services/menu-items.service";
-import { OrdersService } from "./services/orders.service";
 import { TablesService } from "./services/tables.service";
+import { OrdersService } from "./services/orders.service";
 import { EventsService } from "./services/events.service";
 
 import { AppComponent } from "./app.component";
@@ -22,16 +22,18 @@ import { NavsCashierComponent } from "./components/navs-cashier/navs-cashier.com
 import { NavUserProfileComponent } from "./components/nav-user-profile/nav-user-profile.component";
 import { LoginComponent } from "./components/login/login.component";
 import { HomeComponent } from "./components/home/home.component";
+import { UserContentComponent } from "./components/user-content/user-content.component";
+import { MenuItemContentComponent } from "./components/menu-item-content/menu-item-content.component";
+import { TableContentComponent } from "./components/table-content/table-content.component";
+import { OrderContentComponent } from "./components/order-content/order-content.component";
+import { LiveTablesComponent } from "./components/live-tables/live-tables.component";
+import { LiveOrdersComponent } from "./components/live-orders/live-orders.component";
 import { UsersPageComponent } from "./components/users-page/users-page.component";
 import { CreateUserModalContentComponent } from "./components/create-user-modal-content/create-user-modal-content.component";
 import { ChangePasswordModalContentComponent } from "./components/change-password-modal-content/change-password-modal-content.component";
-import { TableContentComponent } from "./components/table-content/table-content.component";
-import { LiveTablesComponent } from "./components/live-tables/live-tables.component";
-import { OrderContentComponent } from "./components/order-content/order-content.component";
-import { LiveOrdersComponent } from "./components/live-orders/live-orders.component";
 import { TablesPageComponent } from "./components/tables-page/tables-page.component";
-import { FreeTablesPageComponent } from "./components/free-tables-page/free-tables-page.component";
-import { MyTablesComponent } from "./components/my-tables/my-tables.component";
+import { WaiterTablesPageComponent } from "./components/waiter-tables-page/waiter-tables-page.component";
+import { OccupyTableModalContentComponent } from "./components/occupy-table-modal-content/occupy-table-modal-content.component";
 import { TakeOrdersModalContentComponent } from "./components/take-orders-modal-content/take-orders-modal-content.component";
 import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.component";
 
@@ -43,22 +45,25 @@ import { KitchenPageComponent } from "./components/kitchen-page/kitchen-page.com
     NavUserProfileComponent,
     LoginComponent,
     HomeComponent,
+    UserContentComponent,
+    MenuItemContentComponent,
+    TableContentComponent,
+    OrderContentComponent,
+    LiveTablesComponent,
+    LiveOrdersComponent,
     UsersPageComponent,
     CreateUserModalContentComponent,
     ChangePasswordModalContentComponent,
-    TableContentComponent,
-    LiveTablesComponent,
-    OrderContentComponent,
-    LiveOrdersComponent,
     TablesPageComponent,
-    FreeTablesPageComponent,
-    MyTablesComponent,
+    WaiterTablesPageComponent,
+    OccupyTableModalContentComponent,
     TakeOrdersModalContentComponent,
     KitchenPageComponent
   ],
   entryComponents: [
     CreateUserModalContentComponent,
     ChangePasswordModalContentComponent,
+    OccupyTableModalContentComponent,
     TakeOrdersModalContentComponent
   ],
   imports: [
