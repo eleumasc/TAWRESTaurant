@@ -19,7 +19,7 @@
     <h6 class="card-subtitle text-muted mb-2" *ngIf="show && show.status">
       {{ order.status }}
     </h6>
-    <p class="card-text" *ngIf="show && show.preparationTime">
+    <p class="card-text my-0" *ngIf="show && show.preparationTime">
       Tempo di preparazione:
       {{
         order.kind === "FoodOrder"

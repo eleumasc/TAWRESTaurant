@@ -6,13 +6,13 @@
     <h6 class="card-subtitle text-muted mb-2" *ngIf="show && show.status">
       {{ table.status }}
     </h6>
-    <p class="card-text" *ngIf="show && show.seats">
+    <p class="card-text my-0" *ngIf="show && show.seats">
       Numero di posti: {{ table.seats }}
     </p>
-    <p class="card-text" *ngIf="show && show.foodOrdersStatus">
+    <p class="card-text my-0" *ngIf="show && show.foodOrdersStatus">
       Piatti: {{ table.foodOrdersStatus }}
     </p>
-    <p class="card-text" *ngIf="show && show.beverageOrdersStatus">
+    <p class="card-text my-0" *ngIf="show && show.beverageOrdersStatus">
       Bevande: {{ table.beverageOrdersStatus }}
     </p>
 

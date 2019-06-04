@@ -11,6 +11,8 @@ import { User } from "src/app/models/User";
   styleUrls: ["./users-page.component.css"]
 })
 export class UsersPageComponent implements OnInit {
+  loading: boolean = true;
+
   users: User[] = null;
 
   constructor(
@@ -20,6 +22,7 @@ export class UsersPageComponent implements OnInit {
 
   ngOnInit() {
     this.usersService.getUsers({}).then(users => {
+      this.loading = false;
       this.users = users;
     });
   }

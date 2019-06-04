@@ -1,45 +1,43 @@
 <app-live-tables [filter]="{}" [sort]="[{ by: 'number' }]">
   <ng-template let-tables="tables">
-    <div class="card-body">
-      <div class="mb-1" *ngFor="let table of tables">
-        <app-table-content
-          [table]="table"
-          [show]="{
-            seats: true,
-            status: true,
-            foodOrdersStatus: table.status === 'waiting',
-            beverageOrdersStatus: table.status === 'waiting'
-          }"
+    <div class="mb-1" *ngFor="let table of tables">
+      <app-table-content
+        [table]="table"
+        [show]="{
+          seats: true,
+          status: true,
+          foodOrdersStatus: table.status === 'waiting',
+          beverageOrdersStatus: table.status === 'waiting'
+        }"
+      >
+        <div
+          section="pre"
+          class="float-right"
+          *ngIf="table.status === 'served'"
         >
-          <div
-            section="pre"
-            class="float-right"
-            *ngIf="table.status === 'served'"
+          <button class="btn btn-primary" (click)="openBillModal(table)">
+            <i class="fas fa-money-bill-wave"></i>&nbsp;Conto
+          </button>
+        </div>
+        <div section="post">
+          <app-live-orders
+            [filter]="{ table: table['_id'] }"
+            [sort]="[]"
+            *ngIf="table.status === 'waiting'"
           >
-            <button class="btn btn-primary" (click)="openBillModal(table)">
-              <i class="fas fa-money-bill-wave"></i>&nbsp;Conto
-            </button>
-          </div>
-          <div section="post">
-            <app-live-orders
-              [filter]="{ table: table['_id'] }"
-              [sort]="[]"
-              *ngIf="table.status === 'waiting'"
-            >
-              <ng-template let-orders="orders">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item" *ngFor="let order of orders">
-                    <app-order-content
-                      [order]="order"
-                      [show]="{ status: true }"
-                    ></app-order-content>
-                  </li>
-                </ul>
-              </ng-template>
-            </app-live-orders>
-          </div>
-        </app-table-content>
-      </div>
+            <ng-template let-orders="orders">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let order of orders">
+                  <app-order-content
+                    [order]="order"
+                    [show]="{ status: true }"
+                  ></app-order-content>
+                </li>
+              </ul>
+            </ng-template>
+          </app-live-orders>
+        </div>
+      </app-table-content>
     </div>
   </ng-template>
 </app-live-tables>

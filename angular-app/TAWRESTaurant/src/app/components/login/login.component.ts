@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
       .login(formValue.username, formValue.password)
       .then(res => {
         this.authService.setToken(res.token);
-        this.router.navigate(["/home"]);
+        this.router.navigate(["/"]);
       })
       .catch(err => {
         this.loading = false;

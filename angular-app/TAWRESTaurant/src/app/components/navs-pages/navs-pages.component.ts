@@ -2,11 +2,11 @@ import { Component, OnInit, Input } from "@angular/core";
 import { User } from "src/app/models/User";
 
 @Component({
-  selector: "app-navs-cashier",
-  templateUrl: "./navs-cashier.component.html",
-  styleUrls: ["./navs-cashier.component.css"]
+  selector: "app-navs-pages",
+  templateUrl: "./navs-pages.component.html",
+  styleUrls: ["./navs-pages.component.css"]
 })
-export class NavsCashierComponent implements OnInit {
+export class NavsPagesComponent implements OnInit {
   @Input() auth: User;
 
   constructor() {}

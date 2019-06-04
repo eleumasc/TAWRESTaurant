@@ -8,13 +8,13 @@ import { AuthService } from "./auth.service";
 export class AuthGuardService {
   constructor(private router: Router, private authService: AuthService) {}
 
-  async canActivate(route: ActivatedRouteSnapshot) {
-    if (await this.authService.isLoggedIn()) {
-      if (route.data.roles.includes((await this.authService.getUser()).role)) {
+  canActivate(route: ActivatedRouteSnapshot) {
+    if (this.authService.isLoggedIn()) {
+      if (route.data.roles.includes(this.authService.getUser().role)) {
         return true;
       }
 
-      this.router.navigate(["/home"]);
+      this.router.navigate(["/"]);
 
       return false;
     }

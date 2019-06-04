@@ -11,15 +11,15 @@
     </p>
 
     <ng-container *ngIf="show && show.stats">
-      <ul class="card-text" *ngIf="user.role === 'Waiter'">
+      <ul class="card-text my-0" *ngIf="user.role === 'Waiter'">
         <li>Numero di clienti serviti: {{ user.totalServedCustomers }}</li>
       </ul>
 
-      <ul class="card-text" *ngIf="user.role === 'Cook'">
+      <ul class="card-text my-0" *ngIf="user.role === 'Cook'">
         <li>Numero di piatti preparati: {{ user.totalPreparedDishes }}</li>
       </ul>
 
-      <ul class="card-text" *ngIf="user.role === 'Barman'">
+      <ul class="card-text my-0" *ngIf="user.role === 'Barman'">
         <li>Numero di bevande preparate: {{ user.totalPreparedBeverages }}</li>
       </ul>
     </ng-container>

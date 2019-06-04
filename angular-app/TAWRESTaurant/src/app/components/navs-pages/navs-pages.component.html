@@ -1,0 +1,26 @@
+<ul class="navbar-nav" *ngIf="auth.role === 'Waiter'">
+  <li class="nav-item">
+    <a [routerLink]="['/waiter/tables']" class="nav-link">Tavoli</a>
+  </li>
+</ul>
+
+<ul class="navbar-nav" *ngIf="auth.role === 'Cook'">
+  <li class="nav-item">
+    <a [routerLink]="['/cook/kitchen']" class="nav-link">Cucina</a>
+  </li>
+</ul>
+
+<ul class="navbar-nav" *ngIf="auth.role === 'Barman'">
+  <li class="nav-item">
+    <a [routerLink]="['/barman/bar']" class="nav-link">Bar</a>
+  </li>
+</ul>
+
+<ul class="navbar-nav" *ngIf="auth.role === 'Cashier'">
+  <li class="nav-item">
+    <a [routerLink]="['/cashier/tables']" class="nav-link">Tavoli</a>
+  </li>
+  <li class="nav-item">
+    <a [routerLink]="['/cashier/users']" class="nav-link">Utenti</a>
+  </li>
+</ul>

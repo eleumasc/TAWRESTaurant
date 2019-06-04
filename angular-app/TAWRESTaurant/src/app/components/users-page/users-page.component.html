@@ -2,25 +2,31 @@
   <i class="fas fa-user-plus"></i>&nbsp;Crea utente
 </button>
 
-<div class="mb-1" *ngFor="let user of users">
-  <app-user-content [user]="user" [show]="{ stats: true }">
-    <div
-      section="pre"
-      ngbDropdown
-      class="d-inline-block float-right"
-      placement="bottom-right"
-    >
-      <button class="btn btn-secondary" ngbDropdownToggle>
-        <i class="fas fa-cog"></i>&nbsp;
-      </button>
-      <div ngbDropdownMenu>
-        <button ngbDropdownItem (click)="changePassword(user)">
-          <i class="fas fa-key"></i>&nbsp;Cambia password
+<ng-container *ngIf="!loading && users.length === 0">
+  <ngb-alert type="info" [dismissible]="false">Nessun utente</ngb-alert>
+</ng-container>
+
+<ng-container *ngIf="!loading && users.length > 0">
+  <div class="mb-1" *ngFor="let user of users">
+    <app-user-content [user]="user" [show]="{ stats: true }">
+      <div
+        section="pre"
+        ngbDropdown
+        class="d-inline-block float-right"
+        placement="bottom-right"
+      >
+        <button class="btn btn-secondary" ngbDropdownToggle>
+          <i class="fas fa-cog"></i>&nbsp;
         </button>
-        <button ngbDropdownItem (click)="deleteUser(user)">
-          <i class="fas fa-user-minus"></i>&nbsp;Elimina
-        </button>
+        <div ngbDropdownMenu>
+          <button ngbDropdownItem (click)="changePassword(user)">
+            <i class="fas fa-key"></i>&nbsp;Cambia password
+          </button>
+          <button ngbDropdownItem (click)="deleteUser(user)">
+            <i class="fas fa-user-minus"></i>&nbsp;Elimina
+          </button>
+        </div>
       </div>
-    </div>
-  </app-user-content>
-</div>
+    </app-user-content>
+  </div>
+</ng-container>

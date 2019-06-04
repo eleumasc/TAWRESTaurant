@@ -8,9 +8,9 @@ import { AuthService } from "./auth.service";
 export class NoAuthGuardService {
   constructor(private router: Router, private authService: AuthService) {}
 
-  async canActivate() {
-    if (await this.authService.isLoggedIn()) {
-      this.router.navigate(["/home"]);
+  canActivate() {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(["/"]);
       return false;
     }
 

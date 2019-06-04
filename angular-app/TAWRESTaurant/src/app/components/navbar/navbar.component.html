@@ -5,21 +5,24 @@
     type="button"
     class="navbar-toggler hidden-sm-up"
     (click)="isNavbarCollapsed = !isNavbarCollapsed"
-    *ngIf="auth"
   >
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div
-    class="collapse navbar-collapse"
-    [ngbCollapse]="isNavbarCollapsed"
-    *ngIf="auth"
-  >
-    <app-navs-cashier
-      class="mr-auto"
-      [auth]="auth"
-      *ngIf="auth.role == 'Cashier'"
-    ></app-navs-cashier>
+  <div class="collapse navbar-collapse" [ngbCollapse]="isNavbarCollapsed">
+    <app-navs-pages class="mr-auto" [auth]="auth" *ngIf="auth"></app-navs-pages>
 
-    <app-nav-user-profile class="mr-0" [auth]="auth"></app-nav-user-profile>
+    <app-nav-user-profile
+      class="mr-0"
+      [auth]="auth"
+      *ngIf="auth"
+    ></app-nav-user-profile>
+
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/info']">
+          <i class="fas fa-info-circle" aria-hidden="true"></i>
+        </a>
+      </li>
+    </ul>
   </div>
 </nav>
