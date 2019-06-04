@@ -8,11 +8,6 @@ export type CreateOrderForm = {
   seats: Number;
 };
 
-export enum ChangeOrderStatus {
-  Assign = "assign",
-  Notify = "notify"
-}
-
 export function isCreateOrderForm(req: any): req is CreateOrderForm {
   return (
     req.body &&
@@ -24,8 +19,4 @@ export function isCreateOrderForm(req: any): req is CreateOrderForm {
       (req.body.kind === OrderKind.FoodOrder &&
         ObjectId.isValid(req.body.food)))
   );
-}
-
-export function isChangeOrderStatus(req: any): boolean {
-  return enumHasValue(ChangeOrderStatus, req.query.action);
 }
