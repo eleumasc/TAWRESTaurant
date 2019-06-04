@@ -23,9 +23,8 @@ import {
   FoodOrder,
   BeverageOrder
 } from "../models/order";
-import { UserRole } from "../models/user";
+import { UserRole, Cook, Barman } from "../models/user";
 import { isCreateOrderForm } from "../models/forms/order";
-import { isNullOrUndefined } from "util";
 
 const tableFoodOrders: Route = {
   path: "/foodOrders",
@@ -278,18 +277,42 @@ function assignOrder(order: Order, req, res, next) {
 
       order.status = OrderStatus.Preparing;
       if (order.kind === OrderKind.FoodOrder) {
-        (<FoodOrder>order).cook = req.user._id;
-      } else {
-        (<BeverageOrder>order).barman = req.user._id;
-      }
+        CookModel.findOne({ _id: req.user._id })
+          .then((cook: Cook) => {
+            if (!cook) {
+              return res.status(403).json(error("JWT error, please re-login"));
+            }
 
-      order
-        .save()
-        .then(() => {
-          io.emit("order status changed", order);
-          res.json(order);
-        })
-        .catch(next);
+            (<FoodOrder>order).cook = cook._id;
+
+            order
+              .save()
+              .then(() => {
+                io.emit("order status changed", order);
+                res.json(order);
+              })
+              .catch(next);
+          })
+          .catch(next);
+      } else {
+        BarmanModel.findOne({ id: req.user._id })
+          .then((barman: Barman) => {
+            if (!barman) {
+              return res.status(403).json(error("JWT error, please re-login"));
+            }
+
+            (<BeverageOrder>order).barman = barman._id;
+
+            order
+              .save()
+              .then(() => {
+                io.emit("order status changed", order);
+                res.json(order);
+              })
+              .catch(next);
+          })
+          .catch(next);
+      }
     })
     .catch(next);
 }
@@ -309,60 +332,46 @@ function notifyOrderAsReady(order: Order, req, res, next) {
   order
     .save()
     .then(() => {
-      if (order.kind === OrderKind.FoodOrder) {
-        OrderModel.countDocuments({
-          table: order.table,
-          status: { $in: [OrderStatus.Pending, OrderStatus.Preparing] },
-          kind: OrderKind.FoodOrder
-        })
-          .then((count: number) => {
-            if (count === 0)
-              TableModel.findOne({ _id: order.table })
-                .then((table: Table) => {
+      OrderModel.countDocuments({
+        table: order.table,
+        status: { $in: [OrderStatus.Pending, OrderStatus.Preparing] },
+        kind: order.kind
+      })
+        .then((count: number) => {
+          if (count === 0)
+            TableModel.findOne({ _id: order.table })
+              .then((table: Table) => {
+                if (order.kind === OrderKind.FoodOrder) {
                   table.foodOrdersStatus = TableOrderStatus.Ready;
-                  table.save()
-                    .then(() => {
-                      io.emit("table status changed", table);
-                    })
-                    .catch(next)
-                })
-                .catch(next);
-          })
-          .catch(next);
+                } else if (order.kind === OrderKind.BeverageOrder) {
+                  table.beverageOrdersStatus = TableOrderStatus.Ready;
+                }
 
+                table
+                  .save()
+                  .then(() => {
+                    io.emit("table status changed", table);
+                  })
+                  .catch(next);
+              })
+              .catch(next);
+        })
+        .catch(next);
+
+      if (order.kind === OrderKind.FoodOrder) {
         CookModel.updateOne(
           { _id: req.user._id },
           { $inc: { totalPreparedDishes: 1 } }
         )
-          .then(() => { })
-          .catch(next);
+          .then(() => {})
+          .catch(() => {});
       } else if (order.kind === OrderKind.BeverageOrder) {
-        OrderModel.countDocuments({
-          table: order.table,
-          status: { $in: [OrderStatus.Pending, OrderStatus.Preparing] },
-          kind: OrderKind.BeverageOrder
-        })
-          .then((count: number) => {
-            if (count === 0)
-              TableModel.findOne({ _id: order.table })
-                .then((table: Table) => {
-                  table.beverageOrdersStatus = TableOrderStatus.Ready;
-                  table.save()
-                    .then(() => {
-                      io.emit("table status changed", table);
-                    })
-                    .catch(next)
-                })
-                .catch(next);
-          })
-          .catch(next);
-
         BarmanModel.updateOne(
           { _id: req.user._id },
           { $inc: { totalPreparedBeverages: 1 } }
         )
-          .then(() => { })
-          .catch(next);
+          .then(() => {})
+          .catch(() => {});
       }
 
       io.emit("order status changed", order);
@@ -394,6 +403,13 @@ function notifyOrdersAsServed(req, res, next) {
           } else {
             table.beverageOrdersStatus = TableOrderStatus.Served;
           }
+        }
+
+        if (
+          table.foodOrdersStatus === TableOrderStatus.Served &&
+          table.beverageOrdersStatus === TableOrderStatus.Served
+        ) {
+          table.status = TableStatus.Served;
         }
 
         table

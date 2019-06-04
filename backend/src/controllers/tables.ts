@@ -5,10 +5,15 @@ import { Route } from ".";
 import { addParams } from "../middlewares/addParams";
 import { checkRequest } from "../middlewares/checkRequest";
 import { error } from "../helpers/error";
-import { WaiterModel, TableModel, OrderModel } from "../models";
+import { WaiterModel, TableModel, OrderModel, UserModel } from "../models";
 import { ObjectId } from "bson";
-import { UserRole } from "../models/user";
-import { Table, TableStatus, isTableStatus, isTableOrderStatus } from "../models/table";
+import { UserRole, Waiter } from "../models/user";
+import {
+  Table,
+  TableStatus,
+  isTableStatus,
+  isTableOrderStatus
+} from "../models/table";
 import {
   isCreateTableForm,
   isOccupyFreeRequest,
@@ -123,16 +128,24 @@ function occupyTable(table: Table, req, res, next) {
   if (table.status !== TableStatus.Free)
     return res.status(409).json(error("Table is already occupied"));
 
-  table.status = TableStatus.NotServed;
-  table.numOfCustomers = req.body.numOfCustomers;
-  table.servedBy = req.user._id;
-  table.occupiedAt = new Date();
+  WaiterModel.findOne({ _id: req.user._id })
+    .then((waiter: Waiter) => {
+      if (!waiter) {
+        return res.status(403).json(error("JWT error, please re-login"));
+      }
 
-  table
-    .save()
-    .then(() => {
-      io.emit("table status changed", table);
-      res.send();
+      table.status = TableStatus.NotServed;
+      table.numOfCustomers = req.body.numOfCustomers;
+      table.servedBy = waiter._id;
+      table.occupiedAt = new Date();
+
+      table
+        .save()
+        .then(() => {
+          io.emit("table status changed", table);
+          res.send();
+        })
+        .catch(next);
     })
     .catch(next);
 }
@@ -143,8 +156,9 @@ function freeTable(table: Table, req, res, next) {
 
   OrderModel.deleteMany({ table: table._id })
     .then(() => {
-      let numOfCustomers = table.numOfCustomers;
-      let servedBy = table.servedBy;
+      const numOfCustomers = table.numOfCustomers;
+      const servedBy = table.servedBy;
+
       table.status = TableStatus.Free;
       table.numOfCustomers = 0;
       table.servedBy = null;
@@ -160,8 +174,8 @@ function freeTable(table: Table, req, res, next) {
             { _id: servedBy },
             { $inc: { totalServedCustomers: numOfCustomers } }
           )
-            .then(() => { })
-            .catch(next);
+            .then(() => {})
+            .catch(() => {});
 
           io.emit("table status changed", table);
           res.send();
