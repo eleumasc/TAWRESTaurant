@@ -1,5 +1,5 @@
 <app-live-orders
-  [filter]="{ cook: auth['_id'], status: 'preparing', kind: 'FoodOrder' }"
+  [filter]=" route.data._value.kind === 'FoodOrder' ? { cook: auth['_id'], status: 'preparing', kind: 'FoodOrder' } : { barman: auth['_id'], status: 'preparing', kind: 'BeverageOrder' }"
   [sort]="[]"
   #myOrders
 >
@@ -35,7 +35,7 @@
 <hr />
 
 <app-live-tables
-  [filter]="{ foodOrdersStatus: 'pending' }"
+  [filter]="route.data._value.kind === 'FoodOrder' ? { foodOrdersStatus: 'pending' } : { beverageOrdersStatus: 'pending' }"
   [sort]="[{ by: 'ordersTakenAt' }]"
 >
   <ng-template let-loading="loading" let-tables="tables">
@@ -54,7 +54,7 @@
               [filter]="{
                 table: table['_id'],
                 status: 'pending',
-                kind: 'FoodOrder'
+                kind: route.data._value.kind
               }"
               [sort]="[{ by: 'preparationTime', desc: true }]"
             >
