@@ -17,14 +17,25 @@ export class KitchenPageComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private route: ActivatedRoute,
-    private orderService: OrdersService
-  ) {}
+    private ordersService: OrdersService
+  ) { }
 
   ngOnInit() {
     this.auth = this.authService.getUser();
   }
 
-  prepare(table: Table, order: Order) {
-    this.orderService.assignOrder(table, order).then();
+  assignOrder(table: Table, order: Order) {
+    this.ordersService.assignOrder(table, order)
+      .then(() => { })
+      .catch(err => { alert(err) });
+  }
+
+  notifyReadyOrder(table: Table, order: Order) {
+    this.ordersService.notifyReadyOrder(table, order)
+      .then(() => { })
+      .catch(err => {
+        alert(err)
+        console.log(order)
+      });
   }
 }

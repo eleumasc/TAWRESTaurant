@@ -2,7 +2,7 @@ import mongoose = require("mongoose");
 import { enumHasValue } from "../helpers/enumHasValue";
 import { UserRole, Cook, Barman } from "./user";
 import { MenuItemKind, Food, Beverage } from "./menuItem";
-import { Table } from "./table";
+import { Table, TableOrderStatus } from "./table";
 
 export enum OrderKind {
   FoodOrder = "FoodOrder",
@@ -27,7 +27,7 @@ export enum OrderStatus {
 }
 
 export function isOrderStatus(arg: any): arg is OrderStatus {
-  return arg && typeof arg === "string" && enumHasValue(OrderStatus, arg);
+  return arg && typeof arg === "string" && enumHasValue(TableOrderStatus, arg);
 }
 
 export type FoodOrder = Order & {

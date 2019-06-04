@@ -8,26 +8,26 @@ import { Food, Beverage } from "../models/MenuItem";
 
 export type GetOrdersFilter =
   | {
-      table: string;
-      kind?: OrderKind;
-      status?: OrderStatus;
-      cook?: undefined;
-      barman?: undefined;
-    }
+    table: string;
+    kind?: OrderKind;
+    status?: OrderStatus;
+    cook?: undefined;
+    barman?: undefined;
+  }
   | {
-      table?: undefined;
-      kind?: OrderKind.FoodOrder;
-      status?: OrderStatus.Preparing | OrderStatus.Ready;
-      cook: string;
-      barman?: undefined;
-    }
+    table?: undefined;
+    kind?: OrderKind.FoodOrder;
+    status?: OrderStatus.Preparing | OrderStatus.Ready;
+    cook: string;
+    barman?: undefined;
+  }
   | {
-      table?: undefined;
-      kind?: OrderKind.BeverageOrder;
-      status?: OrderStatus.Preparing | OrderStatus.Ready;
-      cook?: undefined;
-      barman: string;
-    };
+    table?: undefined;
+    kind?: OrderKind.BeverageOrder;
+    status?: OrderStatus.Preparing | OrderStatus.Ready;
+    cook?: undefined;
+    barman: string;
+  };
 
 export type GetOrdersSortRule = {
   by: "price" | "preparationTime";
@@ -38,7 +38,7 @@ export type GetOrdersSortRule = {
   providedIn: "root"
 })
 export class OrdersService {
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   private getGetOrdersPathByFilter(filter: GetOrdersFilter): string {
     if (filter.cook) {
@@ -76,8 +76,8 @@ export class OrdersService {
     return this.http
       .get(
         environment.baseUrl +
-          environment.apiPath +
-          this.getGetOrdersPathByFilter(filter),
+        environment.apiPath +
+        this.getGetOrdersPathByFilter(filter),
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
@@ -93,8 +93,8 @@ export class OrdersService {
     return this.http
       .get(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders/byId/${id}`,
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders/byId/${id}`,
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
@@ -114,10 +114,10 @@ export class OrdersService {
     return this.http
       .post(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders${
-            form.food ? "/foodOrders" : "/beverageOrders"
-          }`,
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders${
+        form.food ? "/foodOrders" : "/beverageOrders"
+        }`,
         {
           food: form.food && form.food._id,
           beverage: form.beverage && form.beverage._id
@@ -136,13 +136,14 @@ export class OrdersService {
     return this.http
       .put(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders`,
-        { action: "commit" },
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders`,
+        {},
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
           }),
+          params: { action: "commit" },
           responseType: "json"
         }
       )
@@ -153,15 +154,16 @@ export class OrdersService {
     return this.http
       .put(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders${
-            kind === OrderKind.FoodOrder ? "/foodOrders" : "/beverageOrders"
-          }`,
-        { action: "notify-served" },
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders${
+        kind === OrderKind.FoodOrder ? "/foodOrders" : "/beverageOrders"
+        }`,
+        {},
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
           }),
+          params: { action: "notify-served" },
           responseType: "json"
         }
       )
@@ -172,17 +174,14 @@ export class OrdersService {
     return this.http
       .put(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders${
-            order.kind === OrderKind.FoodOrder
-              ? "/foodOrders"
-              : "/beverageOrders"
-          }/byId/${order._id}`,
-        { action: "assign" },
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders/byId/${order._id}`,
+        {},
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
           }),
+          params: { action: "assign" },
           responseType: "json"
         }
       )
@@ -193,17 +192,14 @@ export class OrdersService {
     return this.http
       .put(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders${
-            order.kind === OrderKind.FoodOrder
-              ? "/foodOrders"
-              : "/beverageOrders"
-          }/byId/${order._id}`,
-        { action: "notify-ready" },
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders/byId/${order._id}`,
+        {},
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())
           }),
+          params: { action: "notify-ready" },
           responseType: "json"
         }
       )
@@ -214,8 +210,8 @@ export class OrdersService {
     return this.http
       .delete(
         environment.baseUrl +
-          environment.apiPath +
-          `/tables/byId/${table._id}/orders/byId/${order._id}`,
+        environment.apiPath +
+        `/tables/byId/${table._id}/orders/byId/${order._id}`,
         {
           headers: new HttpHeaders({
             Authorization: "Bearer " + (await this.authService.getToken())

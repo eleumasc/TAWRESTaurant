@@ -25,6 +25,7 @@ import {
 } from "../models/order";
 import { UserRole } from "../models/user";
 import { isCreateOrderForm } from "../models/forms/order";
+import { isNullOrUndefined } from "util";
 
 const tableFoodOrders: Route = {
   path: "/foodOrders",
@@ -166,6 +167,10 @@ function removeOrderOfTable(req, res, next) {
 }
 
 function commitOrdersByTable(req, res, next) {
+  if (req.query.action !== "commit") {
+    return res.status(400).json(error("Bad request"));
+  }
+
   TableModel.findOne({ _id: req.urlParams.idT })
     .then((table: Table) => {
       if (!table) return res.status(404).json(error("Table not found"));
@@ -210,7 +215,7 @@ function commitOrdersByTable(req, res, next) {
 
 export enum ChangeOrderStatusAction {
   Assign = "assign",
-  Notify = "notify"
+  NotifyReady = "notify-ready"
 }
 
 export function hasChangeOrderStatusAction(req): boolean {
@@ -242,7 +247,7 @@ function changeOrderStatus(req, res, next) {
         } else {
           return res.status(409).json(error("Order has already been assigned"));
         }
-      } else if (req.query.action === ChangeOrderStatusAction.Notify) {
+      } else if (req.query.action === ChangeOrderStatusAction.NotifyReady) {
         if (order.status === OrderStatus.Preparing) {
           return notifyOrderAsReady(order, req, res, next);
         } else if (order.status === OrderStatus.Pending) {
@@ -305,18 +310,58 @@ function notifyOrderAsReady(order: Order, req, res, next) {
     .save()
     .then(() => {
       if (order.kind === OrderKind.FoodOrder) {
+        OrderModel.countDocuments({
+          table: order.table,
+          status: { $in: [OrderStatus.Pending, OrderStatus.Preparing] },
+          kind: OrderKind.FoodOrder
+        })
+          .then((count: number) => {
+            if (count === 0)
+              TableModel.findOne({ _id: order.table })
+                .then((table: Table) => {
+                  table.foodOrdersStatus = TableOrderStatus.Ready;
+                  table.save()
+                    .then(() => {
+                      io.emit("table status changed", table);
+                    })
+                    .catch(next)
+                })
+                .catch(next);
+          })
+          .catch(next);
+
         CookModel.updateOne(
           { _id: req.user._id },
           { $inc: { totalPreparedDishes: 1 } }
         )
-          .then(() => {})
+          .then(() => { })
           .catch(next);
       } else if (order.kind === OrderKind.BeverageOrder) {
+        OrderModel.countDocuments({
+          table: order.table,
+          status: { $in: [OrderStatus.Pending, OrderStatus.Preparing] },
+          kind: OrderKind.BeverageOrder
+        })
+          .then((count: number) => {
+            if (count === 0)
+              TableModel.findOne({ _id: order.table })
+                .then((table: Table) => {
+                  table.beverageOrdersStatus = TableOrderStatus.Ready;
+                  table.save()
+                    .then(() => {
+                      io.emit("table status changed", table);
+                    })
+                    .catch(next)
+                })
+                .catch(next);
+          })
+          .catch(next);
+
         BarmanModel.updateOne(
           { _id: req.user._id },
           { $inc: { totalPreparedBeverages: 1 } }
         )
-          .then(() => {})
+          .then(() => { })
           .catch(next);
       }
 
@@ -327,39 +372,40 @@ function notifyOrderAsReady(order: Order, req, res, next) {
 }
 
 function notifyOrdersAsServed(req, res, next) {
-  if (req.query.action !== "notify-served")
+  if (req.query.action === "notify-served") {
+    TableModel.findOne({ _id: req.urlParams.idT })
+      .then((table: Table) => {
+        if (!table) return res.status(404).json(error("Table not found"));
+
+        if (table.servedBy.toString() !== req.user._id)
+          return res
+            .status(403)
+            .json(error("Forbidden, you are not serving this table"));
+
+        if (req.query.orderKind === OrderKind.FoodOrder) {
+          if (table.foodOrdersStatus !== TableOrderStatus.Ready) {
+            return res.status(409).json(error("Orders are not ready"));
+          } else {
+            table.foodOrdersStatus = TableOrderStatus.Served;
+          }
+        } else {
+          if (table.beverageOrdersStatus !== TableOrderStatus.Ready) {
+            return res.status(409).json(error("Orders are not ready"));
+          } else {
+            table.beverageOrdersStatus = TableOrderStatus.Served;
+          }
+        }
+
+        table
+          .save()
+          .then(() => {
+            io.emit("table status changed", table);
+            res.send();
+          })
+          .catch(next);
+      })
+      .catch(next);
+  } else {
     return res.status(400).json(error("Bad request"));
-
-  TableModel.findOne({ _id: req.urlParams.idT })
-    .then((table: Table) => {
-      if (!table) return res.status(404).json(error("Table not found"));
-
-      if (table.servedBy.toString() !== req.user._id)
-        return res
-          .status(403)
-          .json(error("Forbidden, you are not serving this table"));
-
-      if (req.query.orderKind === OrderKind.FoodOrder) {
-        if (table.foodOrdersStatus !== TableOrderStatus.Ready) {
-          return res.status(409).json(error("Orders are not ready"));
-        } else {
-          table.foodOrdersStatus = TableOrderStatus.Served;
-        }
-      } else {
-        if (table.beverageOrdersStatus !== TableOrderStatus.Ready) {
-          return res.status(409).json(error("Orders are not ready"));
-        } else {
-          table.beverageOrdersStatus = TableOrderStatus.Served;
-        }
-      }
-
-      table
-        .save()
-        .then(() => {
-          io.emit("table status changed", table);
-          res.send();
-        })
-        .catch(next);
-    })
-    .catch(next);
+  }
 }

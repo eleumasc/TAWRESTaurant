@@ -3,7 +3,7 @@
 </button>
 
 <div class="mb-1" *ngFor="let user of users">
-  <app-user-content [user]="user">
+  <app-user-content [user]="user" [show]="{ stats: true }">
     <div
       section="pre"
       ngbDropdown

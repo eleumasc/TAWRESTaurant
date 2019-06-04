@@ -30,6 +30,7 @@ const barmans: Route = {
           let filter: any = { barman: req.urlParams.idU };
           if (req.query.status) filter.status = req.query.status;
           BeverageOrderModel.find(filter)
+            .populate("beverage")
             .then(orders => res.json(orders))
             .catch(next);
         }
@@ -77,6 +78,7 @@ const cooks: Route = {
           let filter: any = { cook: req.urlParams.idU };
           if (req.query.status) filter.status = req.query.status;
           FoodOrderModel.find(filter)
+            .populate("food")
             .then(orders => res.json(orders))
             .catch(next);
         }

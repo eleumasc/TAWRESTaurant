@@ -8,13 +8,12 @@ import { error } from "../helpers/error";
 import { WaiterModel, TableModel, OrderModel } from "../models";
 import { ObjectId } from "bson";
 import { UserRole } from "../models/user";
-import { Table, TableStatus, isTableStatus } from "../models/table";
+import { Table, TableStatus, isTableStatus, isTableOrderStatus } from "../models/table";
 import {
   isCreateTableForm,
   isOccupyFreeRequest,
   ChangeStatus
 } from "../models/forms/table";
-import { isOrderStatus } from "../models/order";
 import { tableByIdOrders as tableByIdOrdersRoute } from "./orders";
 
 export const tables: Route = {
@@ -59,10 +58,10 @@ function getTables(req, res, next) {
   if (seats) filter.seats = { $gte: parseInt(seats) };
   if (status && isTableStatus(status)) filter.status = status;
   if (servedById && ObjectId.isValid(servedById)) filter.servedBy = servedById;
-  if (foodOrdersStatus && isOrderStatus(foodOrdersStatus))
-    filter.foodOrdersStatus = servedById;
-  if (beverageOrdersStatus && isOrderStatus(beverageOrdersStatus))
-    filter.beverageOrdersStatus = servedById;
+  if (foodOrdersStatus && isTableOrderStatus(foodOrdersStatus))
+    filter.foodOrdersStatus = foodOrdersStatus;
+  if (beverageOrdersStatus && isTableOrderStatus(beverageOrdersStatus))
+    filter.beverageOrdersStatus = beverageOrdersStatus;
 
   TableModel.find(filter)
     .then(tables => res.json(tables))
@@ -144,6 +143,8 @@ function freeTable(table: Table, req, res, next) {
 
   OrderModel.deleteMany({ table: table._id })
     .then(() => {
+      let numOfCustomers = table.numOfCustomers;
+      let servedBy = table.servedBy;
       table.status = TableStatus.Free;
       table.numOfCustomers = 0;
       table.servedBy = null;
@@ -156,10 +157,10 @@ function freeTable(table: Table, req, res, next) {
         .save()
         .then(() => {
           WaiterModel.updateOne(
-            { _id: table.servedBy },
-            { $inc: { totalServedCustomers: table.numOfCustomers } }
+            { _id: servedBy },
+            { $inc: { totalServedCustomers: numOfCustomers } }
           )
-            .then(() => {})
+            .then(() => { })
             .catch(next);
 
           io.emit("table status changed", table);

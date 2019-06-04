@@ -78,7 +78,7 @@ export const root: Route = {
     }
   }
 };
-
+/*
 const routes = {
   "/": {
     GET: { res: "subRoutes" }
@@ -164,23 +164,25 @@ const routes = {
         },
         "/byId/:id": {
           GET: { res: "Order" },
-          PUT: { action: '"assign" | "notify"', res: "Order" },
+          PUT: { action: '"assign" | "notify-ready"', res: "Order" },
           DELETE: { res: "nothing" }
         },
         "/foodOrders": {
           GET: { query: "{status}", res: " Array<FoodOrder>" },
-          POST: { body: "{food}", res: "FoodOrder" }
+          POST: { body: "{food}", res: "FoodOrder" },
+          PUT: { query: "{action: 'notify-served'}", res: "OK" }
         },
         "/beverageOrders": {
           GET: { query: "{status}", res: "Array<BeverageOrder>" },
-          POST: { body: "{beverage}", res: "BeverageOrder" }
+          POST: { body: "{beverage}", res: "BeverageOrder" },
+          PUT: { query: "{action: 'notify-served'}", res: "OK" }
         }
       }
     }
   }
 };
 
-/*
+
 const util = require("util");
 console.log("subRoutes:\n", util.inspect(subRoutes, false, null, true));
 */
