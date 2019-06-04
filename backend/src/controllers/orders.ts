@@ -294,8 +294,8 @@ function assignOrder(order: Order, req, res, next) {
               .catch(next);
           })
           .catch(next);
-      } else {
-        BarmanModel.findOne({ id: req.user._id })
+      } else if (order.kind === OrderKind.BeverageOrder) {
+        BarmanModel.findOne({ _id: req.user._id })
           .then((barman: Barman) => {
             if (!barman) {
               return res.status(403).json(error("JWT error, please re-login"));
