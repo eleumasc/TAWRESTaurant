@@ -1,4 +1,3 @@
-import express = require("express");
 import jsonwebtoken = require("jsonwebtoken");
 import { basicAuth } from "../middlewares/basicAuth";
 import { Route } from ".";
@@ -18,7 +17,6 @@ function signToken(req, res) {
 
   return res.json({ token: token });
 }
-
 
 export const login: Route = {
   path: "/login",

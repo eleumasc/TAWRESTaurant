@@ -5,7 +5,6 @@ import { setQuery } from "../middlewares/setQuery";
 import { setBody } from "../middlewares/setBody";
 import { checkRequest } from "../middlewares/checkRequest";
 import { userHasRole } from "../middlewares/userHasRole";
-import { enumHasValue } from "../helpers/enumHasValue";
 import { error } from "../helpers/error";
 import {
   CookModel,
@@ -37,14 +36,14 @@ const tableFoodOrders: Route = {
       setBody(["kind"], [OrderKind.FoodOrder]),
       checkRequest(isCreateOrderForm)
     ],
-    callback: addOrderOfTable
+    callback: addOrderByTable
   },
   PUT: {
     middlewares: [
       setQuery(["orderKind"], [OrderKind.FoodOrder]),
       userHasRole([UserRole.Waiter])
     ],
-    callback: notifyOrdersAsServed
+    callback: serveOrders
   }
 };
 
@@ -56,14 +55,14 @@ const tableBeverageOrders: Route = {
   },
   POST: {
     middlewares: [setBody(["kind"], [OrderKind.BeverageOrder])],
-    callback: addOrderOfTable
+    callback: addOrderByTable
   },
   PUT: {
     middlewares: [
       setQuery(["orderKind"], [OrderKind.BeverageOrder]),
       userHasRole([UserRole.Waiter])
     ],
-    callback: notifyOrdersAsServed
+    callback: serveOrders
   }
 };
 
@@ -75,13 +74,10 @@ export const tableByIdOrders: Route = {
       middlewares: [addParams("idO")],
       GET: { callback: getOrderByTableAndId },
       PUT: {
-        middlewares: [
-          userHasRole([UserRole.Cook, UserRole.Barman]),
-          checkRequest(hasChangeOrderStatusAction)
-        ],
+        middlewares: [userHasRole([UserRole.Cook, UserRole.Barman])],
         callback: changeOrderStatus
       },
-      DELETE: { callback: removeOrderOfTable }
+      DELETE: { callback: removeOrderByTable }
     },
     tableFoodOrders,
     tableBeverageOrders
@@ -91,11 +87,9 @@ export const tableByIdOrders: Route = {
 };
 
 function getOrdersByTable(req, res, next) {
-  const { status, kind } = req.query;
-
   const filter: any = { table: req.urlParams.idT };
-  if (status) filter.status = status;
-  if (kind) filter.kind = kind;
+  if (req.query.status) filter.status = req.query.status;
+  if (req.query.kind) filter.kind = req.query.kind;
 
   OrderModel.find(filter)
     .populate("food beverage")
@@ -117,8 +111,7 @@ function getOrderByTableAndId(req, res, next) {
     .catch(next);
 }
 
-// FIXME: The "food"/"beverage" field of resulting order is not populated
-function addOrderOfTable(req, res, next) {
+function addOrderByTable(req, res, next) {
   TableModel.findOne({ _id: req.urlParams.idT })
     .then((table: Table) => {
       if (!table) return res.status(404).json(error("Table not found"));
@@ -150,13 +143,15 @@ function addOrderOfTable(req, res, next) {
     .catch(next);
 }
 
-function removeOrderOfTable(req, res, next) {
+function removeOrderByTable(req, res, next) {
   OrderModel.findOne({
     _id: req.urlParams.idO,
     table: req.urlParams.idT
   })
     .then((order: Order) => {
-      if (!order) return res.status(404).json(error("Order not found"));
+      if (!order) {
+        return res.status(404).json(error("Order not found"));
+      }
 
       OrderModel.deleteOne({ _id: req.urlParams.idO })
         .then(() => res.send())
@@ -212,16 +207,11 @@ function commitOrdersByTable(req, res, next) {
     .catch(next);
 }
 
-export enum ChangeOrderStatusAction {
-  Assign = "assign",
-  NotifyReady = "notify-ready"
-}
-
-export function hasChangeOrderStatusAction(req): boolean {
-  return enumHasValue(ChangeOrderStatusAction, req.query.action);
-}
-
 function changeOrderStatus(req, res, next) {
+  if (req.query.action !== "assign" && req.query.action !== "notify") {
+    return res.status(400).json(error("Bad request"));
+  }
+
   OrderModel.findOne({
     _id: req.urlParams.idO,
     table: req.urlParams.idT
@@ -240,15 +230,15 @@ function changeOrderStatus(req, res, next) {
         return res.status(403).json(error("This is not your kind of order"));
       }
 
-      if (req.query.action === ChangeOrderStatusAction.Assign) {
+      if (req.query.action === "assign") {
         if (order.status === OrderStatus.Pending) {
           return assignOrder(order, req, res, next);
         } else {
           return res.status(409).json(error("Order has already been assigned"));
         }
-      } else if (req.query.action === ChangeOrderStatusAction.NotifyReady) {
+      } else if (req.query.action === "notify") {
         if (order.status === OrderStatus.Preparing) {
-          return notifyOrderAsReady(order, req, res, next);
+          return notifyOrder(order, req, res, next);
         } else if (order.status === OrderStatus.Pending) {
           return res.status(409).json(error("Order has not been prepared yet"));
         } else if (order.status === OrderStatus.Ready) {
@@ -317,7 +307,7 @@ function assignOrder(order: Order, req, res, next) {
     .catch(next);
 }
 
-function notifyOrderAsReady(order: Order, req, res, next) {
+function notifyOrder(order: Order, req, res, next) {
   if (
     (order.kind === OrderKind.FoodOrder &&
       (<FoodOrder>order).cook.toString() !== req.user._id) ||
@@ -380,8 +370,8 @@ function notifyOrderAsReady(order: Order, req, res, next) {
     .catch(next);
 }
 
-function notifyOrdersAsServed(req, res, next) {
-  if (req.query.action === "notify-served") {
+function serveOrders(req, res, next) {
+  if (req.query.action === "serve") {
     TableModel.findOne({ _id: req.urlParams.idT })
       .then((table: Table) => {
         if (!table) return res.status(404).json(error("Table not found"));

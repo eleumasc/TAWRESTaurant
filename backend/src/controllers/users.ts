@@ -19,6 +19,69 @@ import {
 import { UserRole, User } from "../models/user";
 import { isCreateUserForm, isChangePassword } from "../models/forms/user";
 
+const waiters: Route = {
+  path: "/waiters",
+  subRoutes: [
+    {
+      path: "/byId/:idU/tables",
+      GET: {
+        middlewares: [addParams("idU")],
+        callback: (req, res) => {
+          const idU = req.urlParams.idU;
+          TableModel.find({ servedBy: idU }).then(tables => {
+            res.json(tables);
+          });
+        }
+      }
+    }
+  ],
+  GET: {
+    middlewares: [setQuery(["role"], [UserRole.Waiter])],
+    callback: getUsers
+  },
+  POST: {
+    middlewares: [
+      userHasRole([UserRole.Cashier]),
+      setBody(["role"], [UserRole.Waiter]),
+      checkRequest(isCreateUserForm)
+    ],
+    callback: postUser
+  }
+};
+
+const cooks: Route = {
+  path: "/cooks",
+  subRoutes: [
+    {
+      path: "/byId/:idU/orders",
+      middlewares: [addParams("idU")],
+      GET: {
+        callback: (req, res, next) => {
+          const filter: any = { cook: req.urlParams.idU };
+          if (req.query.status) filter.status = req.query.status;
+
+          FoodOrderModel.find(filter)
+            .populate("food")
+            .then(orders => res.json(orders))
+            .catch(next);
+        }
+      }
+    }
+  ],
+  GET: {
+    middlewares: [setQuery(["role"], [UserRole.Cook])],
+    callback: getUsers
+  },
+  POST: {
+    middlewares: [
+      userHasRole([UserRole.Cashier]),
+      setBody(["role"], [UserRole.Cook]),
+      checkRequest(isCreateUserForm)
+    ],
+    callback: postUser
+  }
+};
+
 const barmans: Route = {
   path: "/barmans",
   subRoutes: [
@@ -27,8 +90,9 @@ const barmans: Route = {
       middlewares: [addParams("idU")],
       GET: {
         callback: (req, res, next) => {
-          let filter: any = { barman: req.urlParams.idU };
+          const filter: any = { barman: req.urlParams.idU };
           if (req.query.status) filter.status = req.query.status;
+
           BeverageOrderModel.find(filter)
             .populate("beverage")
             .then(orders => res.json(orders))
@@ -67,69 +131,7 @@ const cashiers: Route = {
   }
 };
 
-const cooks: Route = {
-  path: "/cooks",
-  subRoutes: [
-    {
-      path: "/byId/:idU/orders",
-      middlewares: [addParams("idU")],
-      GET: {
-        callback: (req, res, next) => {
-          let filter: any = { cook: req.urlParams.idU };
-          if (req.query.status) filter.status = req.query.status;
-          FoodOrderModel.find(filter)
-            .populate("food")
-            .then(orders => res.json(orders))
-            .catch(next);
-        }
-      }
-    }
-  ],
-  GET: {
-    middlewares: [setQuery(["role"], [UserRole.Cook])],
-    callback: getUsers
-  },
-  POST: {
-    middlewares: [
-      userHasRole([UserRole.Cashier]),
-      setBody(["role"], [UserRole.Cook]),
-      checkRequest(isCreateUserForm)
-    ],
-    callback: postUser
-  }
-};
-
-const waiters: Route = {
-  path: "/waiters",
-  subRoutes: [
-    {
-      path: "/byId/:idU/tables",
-      GET: {
-        middlewares: [addParams("idU")],
-        callback: (req, res) => {
-          let idU = req.urlParams.idU;
-          TableModel.find({ servedBy: idU }).then(tables => {
-            res.json(tables);
-          });
-        }
-      }
-    }
-  ],
-  GET: {
-    middlewares: [setQuery(["role"], [UserRole.Waiter])],
-    callback: getUsers
-  },
-  POST: {
-    middlewares: [
-      userHasRole([UserRole.Cashier]),
-      setBody(["role"], [UserRole.Waiter]),
-      checkRequest(isCreateUserForm)
-    ],
-    callback: postUser
-  }
-};
-
-const users: Route = {
+export const users: Route = {
   path: "/users",
   middlewares: [jwtAuth],
   subRoutes: [
@@ -165,6 +167,7 @@ const users: Route = {
 function getUsers(req, res, next) {
   const filter: any = {};
   if (req.query.role) filter.role = req.query.role;
+
   UserModel.find(filter)
     .then(users => res.json(users))
     .catch(next);
@@ -194,6 +197,7 @@ function postUser(req, res, next) {
     case UserRole.Waiter:
       user = new WaiterModel(req.body);
   }
+
   user.setPassword(req.body.password);
   user
     .save()
@@ -226,5 +230,3 @@ function deleteUser(req, res, next) {
     })
     .catch(next);
 }
-
-export default users;

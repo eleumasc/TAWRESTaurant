@@ -37,22 +37,24 @@ export const menu: Route = {
 };
 
 function getMenuItems(req, res, next) {
-  const { name, price, preparationTime, kind } = req.query;
   const filter: any = {};
-  if (name && typeof name === "string") {
-    filter.name = name;
+  if (req.query && typeof req.query === "string") {
+    filter.query = req.query;
   }
-  if (price && !isNaN(price)) {
-    filter.price = { $lte: parseFloat(price) + 1, $gte: parseFloat(price) - 1 };
-  }
-  if (preparationTime && !isNaN(preparationTime)) {
-    filter.preparationTime = {
-      $lte: parseFloat(preparationTime) + 1,
-      $gte: parseFloat(preparationTime) - 1
+  if (req.query.price && !isNaN(req.query.price)) {
+    filter.price = {
+      $lte: parseFloat(req.query.price) + 1,
+      $gte: parseFloat(req.query.price) - 1
     };
   }
-  if (kind && isMenuItemKind(kind)) {
-    filter.kind = kind;
+  if (req.query.preparationTime && !isNaN(req.query.preparationTime)) {
+    filter.preparationTime = {
+      $lte: parseFloat(req.query.preparationTime) + 1,
+      $gte: parseFloat(req.query.preparationTime) - 1
+    };
+  }
+  if (req.query.kind && isMenuItemKind(req.query.kind)) {
+    filter.kind = req.query.kind;
   }
 
   MenuItemModel.find(filter)
@@ -75,8 +77,9 @@ function postMenuItem(req, res, next) {
   if (!isCreateMenuItemForm(req.body)) {
     return res.status(400).json(error("Bad request"));
   }
-  let menuItem: MenuItem;
-  menuItem = new MenuItemModel(req.body);
+
+  const menuItem: MenuItem = new MenuItemModel(req.body);
+
   menuItem
     .save()
     .then(() => res.json(menuItem))
@@ -87,16 +90,19 @@ function putMenuItem(req, res, next) {
   if (!isChangeMenuItemForm(req.body)) {
     return res.status(400).json(error("Bad request"));
   }
+
   MenuItemModel.findOne({ _id: req.params.idM })
     .then((menuItem: MenuItem) => {
       if (!menuItem) {
         return res.status(404).json(error("MenuItem not found"));
       }
-      const { name, price, preparationTime, kind } = req.body;
-      if (name) menuItem.name = name;
-      if (price) menuItem.price = price;
-      if (preparationTime) menuItem.preparationTime = preparationTime;
-      if (kind) menuItem.kind = kind;
+
+      if (req.body.name) menuItem.name = req.body.name;
+      if (req.body.price) menuItem.price = req.body.price;
+      if (req.body.preparationTime)
+        menuItem.preparationTime = req.body.preparationTime;
+      if (req.body.kind) menuItem.kind = req.body.kind;
+
       menuItem
         .save()
         .then(() => res.send())
@@ -111,6 +117,7 @@ function deleteMenuItem(req, res, next) {
       if (!menuItem) {
         return res.status(404).json(error("MenuItem not found"));
       }
+
       MenuItemModel.deleteOne({ _id: req.params.idM })
         .then(() => res.send())
         .catch(next);

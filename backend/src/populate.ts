@@ -323,7 +323,7 @@ const populateInfo: PopulateInfo[] = [
     },
     logMessage: "Table: 6",
     model: TableModel
-  },
+  }
 ];
 
 (async () => {

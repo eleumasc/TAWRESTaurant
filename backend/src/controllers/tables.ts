@@ -51,22 +51,22 @@ export const tables: Route = {
 };
 
 function getTables(req, res, next) {
-  const {
-    seats,
-    status,
-    servedById,
-    foodOrdersStatus,
-    beverageOrdersStatus
-  } = req.query;
-
   const filter: any = {};
-  if (seats) filter.seats = { $gte: parseInt(seats) };
-  if (status && isTableStatus(status)) filter.status = status;
-  if (servedById && ObjectId.isValid(servedById)) filter.servedBy = servedById;
-  if (foodOrdersStatus && isTableOrderStatus(foodOrdersStatus))
-    filter.foodOrdersStatus = foodOrdersStatus;
-  if (beverageOrdersStatus && isTableOrderStatus(beverageOrdersStatus))
-    filter.beverageOrdersStatus = beverageOrdersStatus;
+  if (req.query.seats) filter.seats = { $gte: parseInt(req.query.seats) };
+  if (req.query.status && isTableStatus(req.query.status))
+    filter.status = req.query.status;
+  if (req.query.servedById && ObjectId.isValid(req.query.servedById))
+    filter.servedBy = req.query.servedById;
+  if (
+    req.query.foodOrdersStatus &&
+    isTableOrderStatus(req.query.foodOrdersStatus)
+  )
+    filter.foodOrdersStatus = req.query.foodOrdersStatus;
+  if (
+    req.query.beverageOrdersStatus &&
+    isTableOrderStatus(req.query.beverageOrdersStatus)
+  )
+    filter.beverageOrdersStatus = req.query.beverageOrdersStatus;
 
   TableModel.find(filter)
     .then(tables => res.json(tables))

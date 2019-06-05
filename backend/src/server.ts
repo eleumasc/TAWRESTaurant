@@ -1,18 +1,14 @@
 import express = require("express");
 import bodyParser = require("body-parser");
-import { root, createRouter } from "./controllers";
 import { ioJwtAuth } from "./middlewares/ioJwtAuth";
 import { error } from "./helpers/error";
+import { createRouter, root } from "./controllers";
 
 export const app = express();
 
 export const server = require("http").Server(app);
 
 export const io = require("socket.io")(server, { path: "/api/v1/events" });
-
-app.use("/static", express.static("public"));
-
-app.use(bodyParser.json());
 
 app.use(createRouter(root));
 
