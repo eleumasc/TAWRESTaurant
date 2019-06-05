@@ -9,11 +9,9 @@ export const server = require("http").Server(app);
 
 export const io = require("socket.io")(server, { path: "/api/v1/events" });
 
-if (process.env.MODE && process.env.MODE === "production") {
-  app.use("/", express.static("../www/"));
-}
-
 app.use(createRouter(root));
+
+app.use("/", express.static("www"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

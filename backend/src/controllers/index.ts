@@ -72,10 +72,5 @@ const apiv1: Route = {
 
 export const root: Route = {
   path: "/",
-  subRoutes: [apiv1],
-  GET: {
-    callback: (req, res) => {
-      res.json({ greeting: "Hello world!" });
-    }
-  }
+  subRoutes: [apiv1]
 };
