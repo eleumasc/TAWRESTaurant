@@ -1,6 +1,6 @@
 <app-live-orders
   [filter]="
-    route.data._value.kind === 'FoodOrder'
+    routeData.kind === 'FoodOrder'
       ? { cook: auth['_id'], status: 'preparing', kind: 'FoodOrder' }
       : { barman: auth['_id'], status: 'preparing', kind: 'BeverageOrder' }
   "
@@ -42,7 +42,7 @@
 
 <app-live-tables
   [filter]="
-    route.data._value.kind === 'FoodOrder'
+    routeData.kind === 'FoodOrder'
       ? { foodOrdersStatus: 'pending' }
       : { beverageOrdersStatus: 'pending' }
   "
@@ -65,7 +65,7 @@
               [filter]="{
                 table: table['_id'],
                 status: 'pending',
-                kind: route.data._value.kind
+                kind: routeData.kind
               }"
               [sort]="[{ by: 'preparationTime', desc: true }]"
             >

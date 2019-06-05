@@ -15,9 +15,11 @@ export class OccupyTableModalContentComponent implements OnInit {
   constructor(
     private activeModal: NgbActiveModal,
     private tablesService: TablesService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+  }
 
   search() {
     this.searching = true;
@@ -36,5 +38,9 @@ export class OccupyTableModalContentComponent implements OnInit {
       .catch(err => {
         alert(err.message);
       });
+  }
+
+  dismissModal() {
+    this.activeModal.dismiss();
   }
 }

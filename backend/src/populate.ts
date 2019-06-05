@@ -338,6 +338,8 @@ const populateInfo: PopulateInfo[] = [
   }
 ];
 
+let i: number = 0;
+
 (async () => {
   await mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true
@@ -346,32 +348,36 @@ const populateInfo: PopulateInfo[] = [
 
   await clear(models);
 
+  //await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+
   await populate(populateInfo);
 
   await mongoose.disconnect();
 })();
 
 async function clear(models: mongoose.Model<any>[]) {
-  await Promise.all(
-    models.map(model => {
-      new Promise((resolve, reject) => {
+  return Promise.all(
+    models.map(model =>
+      new Promise((resolve, reject) =>
         model.deleteMany({}).then(
           () => {
-            console.log("Delete SUCCESS");
+            let localI = i++;
+            console.log("OP:", localI, "Delete SUCCESS");
             resolve();
           },
           err => {
-            console.log(`Delete FAIL (${err.message})`);
+            let localI = i++;
+            console.log("OP:", localI, `Delete FAIL (${err.message})`);
             reject();
           }
-        );
-      });
-    })
+        )
+      )
+    )
   );
 }
 
 async function populate(info: PopulateInfo[]) {
-  await Promise.all(
+  return Promise.all(
     info.map(
       data =>
         new Promise((resolve, reject) => {
@@ -381,7 +387,8 @@ async function populate(info: PopulateInfo[]) {
               doc[call.method].apply(doc, call.args);
             });
           doc.save(err => {
-            console.log(
+            let localI = i++;
+            console.log("OP:", localI,
               `${data.logMessage} ${!err ? "SUCCESS" : `FAIL (${err.message})`}`
             );
             resolve();

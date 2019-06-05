@@ -53,7 +53,7 @@
               ]
             },
             "cordova": {
-              "outputPath": "../../mobile-app/TAWRESTaurant/www/",
+              "outputPath": "../../cordova-app/TAWRESTaurantMobile/www/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

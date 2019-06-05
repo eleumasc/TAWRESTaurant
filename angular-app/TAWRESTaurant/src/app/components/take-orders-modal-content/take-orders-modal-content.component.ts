@@ -27,9 +27,10 @@ export class TakeOrdersModalContentComponent implements OnInit {
     private activeModal: NgbActiveModal,
     private ordersService: OrdersService,
     private menuItemsService: MenuItemsService
-  ) {}
+  ) { }
 
   ngOnInit() {
+
     this.ordersService
       .getOrders({ table: this.table._id })
       .then((orders: Order[]) => {
@@ -89,5 +90,9 @@ export class TakeOrdersModalContentComponent implements OnInit {
           alert(err.message);
         });
     }
+  }
+
+  dismissModal() {
+    this.activeModal.dismiss();
   }
 }

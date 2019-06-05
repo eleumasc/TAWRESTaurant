@@ -15,6 +15,10 @@ export type Order = {
   table: string; // (<Table>table)._id
   status: OrderStatus;
   kind: OrderKind;
+  food: Food;
+  cook: string;
+  beverage: Beverage;
+  barman: string;
 };
 
 export enum OrderStatus {

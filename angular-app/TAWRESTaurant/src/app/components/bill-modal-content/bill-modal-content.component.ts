@@ -26,7 +26,7 @@ export class BillModalContentComponent implements OnInit {
     private activeModal: NgbActiveModal,
     private ordersService: OrdersService,
     private tablesService: TablesService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.ordersService
@@ -56,5 +56,9 @@ export class BillModalContentComponent implements OnInit {
       .catch(err => {
         alert(err.message);
       });
+  }
+
+  dismissModal() {
+    this.activeModal.dismiss();
   }
 }
