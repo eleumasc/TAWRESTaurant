@@ -1,5 +1,4 @@
 import express = require("express");
-import bodyParser = require("body-parser");
 import { ioJwtAuth } from "./middlewares/ioJwtAuth";
 import { error } from "./helpers/error";
 import { createRouter, root } from "./controllers";
@@ -9,6 +8,10 @@ export const app = express();
 export const server = require("http").Server(app);
 
 export const io = require("socket.io")(server, { path: "/api/v1/events" });
+
+if (process.env.MODE && process.env.MODE === "production") {
+  app.use("/", express.static("../www/"));
+}
 
 app.use(createRouter(root));
 

@@ -5,15 +5,11 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init": "cp .env.prototype .env && npm run init-data",
-    "win-init": "copy .env.prototype .env ; npm run win-init-data",
-    "init-data": "rm -rf data && mkdir data",
-    "win-init-data": "if(Test-Path -Path ./data) {rm -r ./data} ; mkdir ./data",
+    "install": "npm install && cp .env.prototype .env",
+    "mongo": "mkdir data && mongod --dbpath data",
     "build": "tsc",
-    "start-mongodb": "mongod --dbpath data",
     "populate": "node build/populate",
-    "start": "node build/main",
-    "rebuild": "npm run build ; npm run start"
+    "start": "node build/main"
   },
   "repository": {
     "type": "git",
