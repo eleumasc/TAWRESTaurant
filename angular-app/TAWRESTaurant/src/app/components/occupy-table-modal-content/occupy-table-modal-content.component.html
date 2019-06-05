@@ -29,7 +29,7 @@
 
   <app-live-tables
     [filter]="{ seats: numOfCustomers, status: 'free' }"
-    [sort]="[{ by: 'number' }]"
+    [sort]="[{ by: 'seats' }]"
     *ngIf="searching && numOfCustomers > 0"
   >
     <ng-template let-loading="loading" let-tables="tables">

@@ -1,5 +1,9 @@
 <app-live-orders
-  [filter]=" route.data._value.kind === 'FoodOrder' ? { cook: auth['_id'], status: 'preparing', kind: 'FoodOrder' } : { barman: auth['_id'], status: 'preparing', kind: 'BeverageOrder' }"
+  [filter]="
+    route.data._value.kind === 'FoodOrder'
+      ? { cook: auth['_id'], status: 'preparing', kind: 'FoodOrder' }
+      : { barman: auth['_id'], status: 'preparing', kind: 'BeverageOrder' }
+  "
   [sort]="[]"
   #myOrders
 >
@@ -11,7 +15,8 @@
     >
       Nessun ordine in preparazione
     </ngb-alert>
-    <ng-container *ngIf="orders.length > 0">
+
+    <ng-container *ngIf="!loading && orders.length > 0">
       <app-order-content
         [order]="order"
         [show]="{
@@ -23,19 +28,24 @@
         <div section="pre" class="float-right">
           <button
             class="btn btn-success"
-            (click)="notifyReadyOrder({ _id: order.table }, order)"
+            (click)="notifyOrder({ _id: order.table }, order)"
           >
-            Notifica
+            Pronto
           </button>
         </div>
       </app-order-content>
     </ng-container>
   </ng-template>
 </app-live-orders>
-<hr />
+
+<hr class="my-4" />
 
 <app-live-tables
-  [filter]="route.data._value.kind === 'FoodOrder' ? { foodOrdersStatus: 'pending' } : { beverageOrdersStatus: 'pending' }"
+  [filter]="
+    route.data._value.kind === 'FoodOrder'
+      ? { foodOrdersStatus: 'pending' }
+      : { beverageOrdersStatus: 'pending' }
+  "
   [sort]="[{ by: 'ordersTakenAt' }]"
 >
   <ng-template let-loading="loading" let-tables="tables">
@@ -46,6 +56,7 @@
     >
       Nessun tavolo con ordini da preparare
     </ngb-alert>
+
     <ng-container *ngIf="!loading && tables.length > 0">
       <div class="mb-1" *ngFor="let table of tables">
         <app-table-content [table]="table" [show]="{}">
@@ -58,36 +69,39 @@
               }"
               [sort]="[{ by: 'preparationTime', desc: true }]"
             >
-              <ng-template let-orders="orders">
+              <ng-template let-loading1="loading" let-orders="orders">
                 <ngb-alert
                   type="info"
                   [dismissible]="false"
-                  *ngIf="!loading && orders.length === 0"
+                  *ngIf="!loading1 && orders.length === 0"
                 >
                   Nessun ordine da preparare
                 </ngb-alert>
-                <div class="mb-1" *ngFor="let order of orders">
-                  <app-order-content
-                    [order]="order"
-                    [show]="{
-                      preparationTime: true
-                    }"
-                  >
-                    <div section="pre" class="float-right">
-                      <button
-                        class="btn btn-success"
-                        [disabled]="
-                          table !== tables[0] ||
-                          order !== orders[0] ||
-                          myOrders.orders.length > 0
-                        "
-                        (click)="assignOrder(table, order)"
-                      >
-                        Prepara
-                      </button>
-                    </div>
-                  </app-order-content>
-                </div>
+
+                <ng-container *ngIf="!loading1 && orders.length > 0">
+                  <div class="mb-1" *ngFor="let order of orders">
+                    <app-order-content
+                      [order]="order"
+                      [show]="{
+                        preparationTime: true
+                      }"
+                    >
+                      <div section="pre" class="float-right">
+                        <button
+                          class="btn btn-success"
+                          [disabled]="
+                            table !== tables[0] ||
+                            order !== orders[0] ||
+                            myOrders.orders.length > 0
+                          "
+                          (click)="assignOrder(table, order)"
+                        >
+                          Prepara
+                        </button>
+                      </div>
+                    </app-order-content>
+                  </div>
+                </ng-container>
               </ng-template>
             </app-live-orders>
           </div>
