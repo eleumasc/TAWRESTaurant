@@ -60,8 +60,7 @@
                   "with": "src/environments/environment.cordova.ts"
                 }
               ],
-              "baseHref": "./",
-              "scripts": ["cordova.js"],
+              "index": "src/index.cordova.html",
               "main": "src/main.cordova.ts",
               "optimization": true,
               "outputHashing": "all",
