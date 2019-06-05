@@ -7,9 +7,21 @@ import {
   CashierModel,
   FoodModel,
   BeverageModel,
-  TableModel
+  TableModel,
+  OrderModel
 } from "./models";
 import { UserRole } from "./models/user";
+
+let models = [
+  WaiterModel,
+  CookModel,
+  BarmanModel,
+  CashierModel,
+  FoodModel,
+  BeverageModel,
+  TableModel,
+  OrderModel
+];
 
 type PopulateInfo = {
   info: object;
@@ -332,10 +344,31 @@ const populateInfo: PopulateInfo[] = [
   });
   console.log("Connected to MongoDB");
 
+  await clear(models);
+
   await populate(populateInfo);
 
   await mongoose.disconnect();
 })();
+
+async function clear(models: mongoose.Model<any>[]) {
+  await Promise.all(
+    models.map(model => {
+      new Promise((resolve, reject) => {
+        model.deleteMany({}).then(
+          () => {
+            console.log("Delete SUCCESS");
+            resolve();
+          },
+          err => {
+            console.log(`Delete FAIL (${err.message})`);
+            reject();
+          }
+        );
+      });
+    })
+  );
+}
 
 async function populate(info: PopulateInfo[]) {
   await Promise.all(
@@ -349,7 +382,7 @@ async function populate(info: PopulateInfo[]) {
             });
           doc.save(err => {
             console.log(
-              `${data.logMessage} ${!err ? "SUCCESS" : `FAIL (${err.message}`}`
+              `${data.logMessage} ${!err ? "SUCCESS" : `FAIL (${err.message})`}`
             );
             resolve();
           });
