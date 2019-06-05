@@ -6,21 +6,27 @@
 </div>
 <div class="modal-body">
   <div style="height: 320px; overflow-y: scroll">
-    <div class="mb-1" *ngFor="let order of orders">
-      <app-order-content [order]="order">
-        <div section="pre" class="float-right">
-          <button class="btn btn-danger" (click)="deleteOrder(order)">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </app-order-content>
-    </div>
+    <ngb-alert type="info" [dismissible]="false" *ngIf="orders.length === 0"
+      >Nessun ordine</ngb-alert
+    >
+
+    <ng-container *ngIf="orders.length > 0">
+      <div class="mb-1" *ngFor="let order of orders">
+        <app-order-content [order]="order">
+          <div section="pre" class="float-right">
+            <button class="btn btn-danger" (click)="deleteOrder(order)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </app-order-content>
+      </div>
+    </ng-container>
   </div>
 
-  <div class="text-right">
+  <div class="text-right my-2">
     <button
       type="button"
-      class="btn btn-primary my-2"
+      class="btn btn-primary"
       [disabled]="orders.length === 0"
       (click)="commitOrders()"
     >
@@ -28,17 +34,23 @@
     </button>
   </div>
 
-  <hr />
+  <hr class="my-4" />
 
   <div style="height: 320px; overflow-y: scroll">
-    <div class="mb-1" *ngFor="let menuItem of menuItems">
-      <app-menu-item-content [menuItem]="menuItem">
-        <div section="pre" class="float-right">
-          <button class="btn btn-success" (click)="addOrder(menuItem)">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-      </app-menu-item-content>
-    </div>
+    <ngb-alert type="info" [dismissible]="false" *ngIf="menuItems.length === 0"
+      >Il menu &egrave; vuoto</ngb-alert
+    >
+
+    <ng-container *ngIf="menuItems.length > 0">
+      <div class="mb-1" *ngFor="let menuItem of menuItems">
+        <app-menu-item-content [menuItem]="menuItem">
+          <div section="pre" class="float-right">
+            <button class="btn btn-success" (click)="addOrder(menuItem)">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </app-menu-item-content>
+      </div>
+    </ng-container>
   </div>
 </div>

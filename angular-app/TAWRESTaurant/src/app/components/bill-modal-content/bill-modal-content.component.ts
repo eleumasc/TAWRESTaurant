@@ -43,7 +43,7 @@ export class BillModalContentComponent implements OnInit {
         );
       })
       .catch(err => {
-        alert(err);
+        alert(err.message);
       });
   }
 
@@ -54,7 +54,7 @@ export class BillModalContentComponent implements OnInit {
         this.activeModal.close();
       })
       .catch(err => {
-        alert(err);
+        alert(err.message);
       });
   }
 }

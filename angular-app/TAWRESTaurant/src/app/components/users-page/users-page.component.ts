@@ -37,7 +37,7 @@ export class UsersPageComponent implements OnInit {
             this.users.push(user);
           })
           .catch(err => {
-            alert(err);
+            alert(err.message);
           });
       })
       .catch(() => {});
@@ -64,7 +64,7 @@ export class UsersPageComponent implements OnInit {
             }, 250);
           })
           .catch(err => {
-            alert(err);
+            alert(err.message);
           });
       })
       .catch(() => {});
@@ -82,7 +82,7 @@ export class UsersPageComponent implements OnInit {
           this.users = this.users.filter(user1 => user._id !== user1._id);
         })
         .catch(err => {
-          alert(err);
+          alert(err.message);
         });
     }
   }

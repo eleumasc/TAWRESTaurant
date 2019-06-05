@@ -34,7 +34,7 @@ export class OccupyTableModalContentComponent implements OnInit {
         this.activeModal.close();
       })
       .catch(err => {
-        alert(err);
+        alert(err.message);
       });
   }
 }

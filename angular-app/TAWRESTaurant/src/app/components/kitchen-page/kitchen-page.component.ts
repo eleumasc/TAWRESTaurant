@@ -3,8 +3,8 @@ import { OrdersService } from "src/app/services/orders.service";
 import { ActivatedRoute } from "@angular/router";
 import { AuthService } from "src/app/services/auth.service";
 import { User } from "src/app/models/User";
-import { OrderKind, Order } from "src/app/models/Order";
 import { Table } from "src/app/models/Table";
+import { Order } from "src/app/models/Order";
 
 @Component({
   selector: "app-kitchen-page",
@@ -18,24 +18,28 @@ export class KitchenPageComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private ordersService: OrdersService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.auth = this.authService.getUser();
   }
 
   assignOrder(table: Table, order: Order) {
-    this.ordersService.assignOrder(table, order)
-      .then(() => { })
-      .catch(err => { alert(err) });
+    this.ordersService
+      .assignOrder(table, order)
+      .then(() => {})
+      .catch(err => {
+        alert(err.message);
+      });
   }
 
-  notifyReadyOrder(table: Table, order: Order) {
-    this.ordersService.notifyReadyOrder(table, order)
-      .then(() => { })
+  notifyOrder(table: Table, order: Order) {
+    this.ordersService
+      .notifyOrder(table, order)
+      .then(() => {})
       .catch(err => {
-        alert(err)
-        console.log(order)
+        alert(err.message);
+        console.log(order);
       });
   }
 }

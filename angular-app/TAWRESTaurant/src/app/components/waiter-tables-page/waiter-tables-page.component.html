@@ -40,7 +40,7 @@
             <div section="pre" class="float-right">
               <button
                 class="btn btn-primary ml-2"
-                (click)="notifyServed(table, 'FoodOrder')"
+                (click)="serveOrders(table, 'FoodOrder')"
                 *ngIf="table.foodOrdersStatus === 'ready'"
               >
                 Piatti serviti
@@ -48,7 +48,7 @@
 
               <button
                 class="btn btn-primary ml-2"
-                (click)="notifyServed(table, 'BeverageOrder')"
+                (click)="serveOrders(table, 'BeverageOrder')"
                 *ngIf="table.beverageOrdersStatus === 'ready'"
               >
                 Bevande servite

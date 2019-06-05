@@ -35,12 +35,12 @@ export class WaiterTablesPageComponent implements OnInit {
     modalRef.componentInstance.table = table;
   }
 
-  notifyServed(table: Table, kind: OrderKind) {
+  serveOrders(table: Table, kind: OrderKind) {
     this.ordersService
-      .notifyServedOrders(table, kind)
+      .serveOrders(table, kind)
       .then(() => {})
       .catch(err => {
-        alert(err);
+        alert(err.message);
       });
   }
 }

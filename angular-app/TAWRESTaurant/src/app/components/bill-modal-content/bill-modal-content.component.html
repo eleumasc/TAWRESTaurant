@@ -5,7 +5,7 @@
   </button>
 </div>
 <div class="modal-body">
-  <div class="mb-2" style="max-height: 320px; overflow-y: scroll" #bill>
+  <div style="max-height: 320px; overflow-y: scroll" #bill>
     <div class="list-group list-group-flush">
       <div class="list-group-item" *ngFor="let order of orders">
         <app-order-content
@@ -15,7 +15,7 @@
       </div>
     </div>
   </div>
-  <h5 class="text-right">Totale: € {{ totalPrice }}</h5>
+  <h5 class="text-right mt-2">Totale: € {{ totalPrice }}</h5>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-primary" (click)="freeTable()">
