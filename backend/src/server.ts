@@ -11,7 +11,7 @@ export const io = require("socket.io")(server, { path: "/api/v1/events" });
 
 app.use(createRouter(root));
 
-app.use("/", express.static("www"));
+app.use("/", express.static(process.env.WWW));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
