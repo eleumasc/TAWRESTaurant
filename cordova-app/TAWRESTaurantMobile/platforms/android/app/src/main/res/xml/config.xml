@@ -11,7 +11,7 @@
     <author email="" href="https://github.com/eleumasc/TAWRESTaurant">
         NO TAW
     </author>
-    <content src="index.html" />
+    <content src="index.cordova.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
