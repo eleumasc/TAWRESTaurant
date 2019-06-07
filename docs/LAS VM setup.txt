@@ -1,0 +1,55 @@
+Partizioni:
+  / 4GB
+  /var/www 5GB (nginx)
+  /var 5GB (mongoDB)
+  /var/log 5GB
+  SWAP 6GB
+  RAM 4GB
+
+Comandi:
+  sudo apt update
+  sudo apt upgrade
+
+#git
+  sudo apt-get install git 
+  git clone https://github.com/eleumasc/TAWRESTaurant.git
+  cd /TAWRESTaurant/angular-app
+  sudo ng build -c las-production
+
+#mongoDB guide: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+  sudo apt-get update
+  sudo apt-get install -y mongodb-org
+  cat /etc/mongod.conf
+  systemctl enable mongod.service
+  
+#Server nginx
+  sudo apt-get install nginx
+  sudo nano /etc/nginx/nginx.conf
+  http {
+    ...
+    include /etc/nginx/conf.d/*.conf;
+
+          server {
+                  listen          80;
+                  location / {
+                          root   /var/www/TAWRESTaurant;
+                          index  index.html index.htm;
+                  }
+                  location /api/v1/ {
+                          proxy_pass http://localhost:3201;
+                  }
+          }
+  }
+  #folder is readable by server
+  sudo chmod -R 755 /var/www/TAWRESTaurant/
+  sudo service nginx restart
+  
+#pm2
+  sudo npm install pm2@latest -g
+  cd backend/TAWREStaurant
+  pm2 start "npm start"
+  sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u notaw --hp /home/notaw
+  sudo chmod -R 755 /var/www/TAWRESTaurant/
+ 
