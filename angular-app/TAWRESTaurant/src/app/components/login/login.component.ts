@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
         form.password = "";
         this.alert = {
           type: "warning",
-          message: err.error.message || err.error
+          message: err.error.message || err.message || err
         };
       });
   }
