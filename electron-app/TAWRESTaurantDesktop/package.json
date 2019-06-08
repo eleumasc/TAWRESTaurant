@@ -8,7 +8,7 @@
     "clean-index": "sed -i -e 's/<script src=\"[[:alnum:]\\._-]*\\.js\" type=\"module\"><\\/script>//g' -e 's/nomodule//g' www/index.electron.html",
     "build-linux": "electron-packager . TAWRESTaurant --platform=linux --out=dist --overwrite",
     "build-win32": "electron-packager . TAWRESTaurant --platform=win32 --out=dist --overwrite",
-    "start-linux": "electron ."
+    "start": "electron ."
   },
   "author": "",
   "license": "ISC",
