@@ -70,7 +70,7 @@ export class TablesService {
           this.getGetTablesPathByFilter(filter),
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: this.getGetTablesHttpParamsByFilter(filter),
           responseType: "json"
@@ -83,7 +83,7 @@ export class TablesService {
     return this.http
       .get(environment.baseUrl + environment.apiPath + `/tables/byId/${id}`, {
         headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
+          Authorization: "Bearer " + this.authService.getToken()
         }),
         responseType: "json"
       })
@@ -97,7 +97,7 @@ export class TablesService {
         { numOfCustomers: numOfCustomers },
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "occupy" },
           responseType: "json"
@@ -113,7 +113,7 @@ export class TablesService {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "free" },
           responseType: "json"

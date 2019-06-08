@@ -1,11 +1,14 @@
 {
-  "name": "org.notaw.tawrestaurant",
+  "name": "tawrestaurant-mobile",
   "displayName": "TAWRESTaurant",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean-index": "sed -i -e 's/<script src=\"[[:alnum:]\\._-]*\\.js\" type=\"module\"><\\/script>//g' -e 's/nomodule//g' www/index.cordova.html",
+    "build-android": "cordova build android --release",
+    "start-android": "cordova run android"
   },
   "keywords": [
     "ecosystem:cordova"

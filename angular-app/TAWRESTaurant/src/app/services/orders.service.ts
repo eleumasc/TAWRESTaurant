@@ -80,7 +80,7 @@ export class OrdersService {
           this.getGetOrdersPathByFilter(filter),
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: this.getGetOrdersHttpParamsByFilter(filter),
           responseType: "json"
@@ -97,7 +97,7 @@ export class OrdersService {
           `/tables/byId/${table._id}/orders/byId/${id}`,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }
@@ -124,7 +124,7 @@ export class OrdersService {
         },
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }
@@ -141,7 +141,7 @@ export class OrdersService {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "commit" },
           responseType: "json"
@@ -161,7 +161,7 @@ export class OrdersService {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "serve" },
           responseType: "json"
@@ -179,7 +179,7 @@ export class OrdersService {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "assign" },
           responseType: "json"
@@ -197,7 +197,7 @@ export class OrdersService {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           params: { action: "notify" },
           responseType: "json"
@@ -214,7 +214,7 @@ export class OrdersService {
           `/tables/byId/${table._id}/orders/byId/${order._id}`,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }

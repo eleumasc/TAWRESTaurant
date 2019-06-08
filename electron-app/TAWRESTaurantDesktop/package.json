@@ -1,0 +1,20 @@
+{
+  "name": "tawrestaurant-desktop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean-index": "sed -i -e 's/<script src=\"[[:alnum:]\\._-]*\\.js\" type=\"module\"><\\/script>//g' -e 's/nomodule//g' www/index.electron.html",
+    "build-linux": "electron-packager . TAWRESTaurant --platform=linux --out=dist --overwrite",
+    "build-win32": "electron-packager . TAWRESTaurant --platform=win32 --out=dist --overwrite",
+    "start-linux": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^5.0.2",
+    "electron-packager": "^13.1.1"
+  }
+}

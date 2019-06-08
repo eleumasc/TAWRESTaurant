@@ -198,7 +198,7 @@ function commitOrdersByTable(req, res, next) {
             .save()
             .then(() => {
               io.emit("table status changed", table);
-              res.json(table);
+              res.send();
             })
             .catch(next);
         })
@@ -279,7 +279,7 @@ function assignOrder(order: Order, req, res, next) {
               .save()
               .then(() => {
                 io.emit("order status changed", order);
-                res.json(order);
+                res.send();
               })
               .catch(next);
           })
@@ -297,7 +297,7 @@ function assignOrder(order: Order, req, res, next) {
               .save()
               .then(() => {
                 io.emit("order status changed", order);
-                res.json(order);
+                res.send();
               })
               .catch(next);
           })
@@ -365,7 +365,7 @@ function notifyOrder(order: Order, req, res, next) {
       }
 
       io.emit("order status changed", order);
-      res.json(order);
+      res.send();
     })
     .catch(next);
 }
