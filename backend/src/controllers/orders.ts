@@ -198,7 +198,7 @@ function commitOrdersByTable(req, res, next) {
             .save()
             .then(() => {
               io.emit("table status changed", table);
-              res.json(table);
+              res.send();
             })
             .catch(next);
         })

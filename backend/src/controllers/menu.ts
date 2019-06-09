@@ -5,11 +5,12 @@ import { addParams } from "../middlewares/addParams";
 import { error } from "../helpers/error";
 import { UserRole } from "../models/user";
 import { MenuItemModel } from "../models";
-import { MenuItem, isMenuItemKind } from "../models/menuItem";
+import { MenuItem, isMenuItemKind, MenuItemKind } from "../models/menuItem";
 import {
   isCreateMenuItemForm,
   isChangeMenuItemForm
 } from "../models/forms/menuItem";
+import { setQuery } from "../middlewares/setQuery";
 
 export const menu: Route = {
   path: "/menu",
@@ -19,9 +20,27 @@ export const menu: Route = {
       path: "/byId/:idM",
       middlewares: [addParams("idM")],
       GET: { callback: getMenuItemById },
+      PUT: {
+        middlewares: [userHasRole([UserRole.Cashier])],
+        callback: putMenuItem
+      },
       DELETE: {
         middlewares: [userHasRole([UserRole.Cashier])],
         callback: deleteMenuItem
+      }
+    },
+    {
+      path: "/foods",
+      GET: {
+        middlewares: [setQuery(["kind"], [MenuItemKind.Food])],
+        callback: getMenuItems
+      }
+    },
+    {
+      path: "/beverages",
+      GET: {
+        middlewares: [setQuery(["kind"], [MenuItemKind.Beverage])],
+        callback: getMenuItems
       }
     }
   ],
@@ -29,10 +48,6 @@ export const menu: Route = {
   POST: {
     middlewares: [userHasRole([UserRole.Cashier])],
     callback: postMenuItem
-  },
-  PUT: {
-    middlewares: [userHasRole([UserRole.Cashier])],
-    callback: putMenuItem
   }
 };
 
