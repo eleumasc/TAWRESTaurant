@@ -22,7 +22,7 @@ For Mobile/Android:
 
 ```bash
 npm run install
-npm run mongo # only if MongoDB is not running as a daemon
+npm run mongo # only if MongoDB is not running yet
 npm run build-web
 npm run populate
 
