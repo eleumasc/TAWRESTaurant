@@ -49,7 +49,7 @@ export class UsersService {
     return this.http
       .get(environment.baseUrl + environment.apiPath + "/users", {
         headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
+          Authorization: "Bearer " + this.authService.getToken()
         }),
         params: this.getGetUsersHttpParamsByFilter(filter),
         responseType: "json"
@@ -61,7 +61,7 @@ export class UsersService {
     return this.http
       .get(environment.baseUrl + environment.apiPath + `/users/byId/${id}`, {
         headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
+          Authorization: "Bearer " + this.authService.getToken()
         }),
         responseType: "json"
       })
@@ -83,7 +83,7 @@ export class UsersService {
         form,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }
@@ -103,7 +103,7 @@ export class UsersService {
         form,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }
@@ -117,7 +117,7 @@ export class UsersService {
         environment.baseUrl + environment.apiPath + `/users/byId/${user._id}`,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }

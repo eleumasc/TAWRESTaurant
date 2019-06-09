@@ -357,21 +357,22 @@ let i: number = 0;
 
 async function clear(models: mongoose.Model<any>[]) {
   return Promise.all(
-    models.map(model =>
-      new Promise((resolve, reject) =>
-        model.deleteMany({}).then(
-          () => {
-            let localI = i++;
-            console.log("OP:", localI, "Delete SUCCESS");
-            resolve();
-          },
-          err => {
-            let localI = i++;
-            console.log("OP:", localI, `Delete FAIL (${err.message})`);
-            reject();
-          }
+    models.map(
+      model =>
+        new Promise((resolve, reject) =>
+          model.deleteMany({}).then(
+            () => {
+              let localI = i++;
+              console.log("OP:", localI, "Delete SUCCESS");
+              resolve();
+            },
+            err => {
+              let localI = i++;
+              console.log("OP:", localI, `Delete FAIL (${err.message})`);
+              reject();
+            }
+          )
         )
-      )
     )
   );
 }
@@ -388,7 +389,9 @@ async function populate(info: PopulateInfo[]) {
             });
           doc.save(err => {
             let localI = i++;
-            console.log("OP:", localI,
+            console.log(
+              "OP:",
+              localI,
               `${data.logMessage} ${!err ? "SUCCESS" : `FAIL (${err.message})`}`
             );
             resolve();

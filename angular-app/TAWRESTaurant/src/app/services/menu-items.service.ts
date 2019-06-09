@@ -22,7 +22,7 @@ export class MenuItemsService {
             ""}`,
         {
           headers: new HttpHeaders({
-            Authorization: "Bearer " + (await this.authService.getToken())
+            Authorization: "Bearer " + this.authService.getToken()
           }),
           responseType: "json"
         }
@@ -34,7 +34,7 @@ export class MenuItemsService {
     return this.http
       .get(environment.baseUrl + environment.apiPath + `/menu/byId/${id}`, {
         headers: new HttpHeaders({
-          Authorization: "Bearer " + (await this.authService.getToken())
+          Authorization: "Bearer " + this.authService.getToken()
         }),
         responseType: "json"
       })

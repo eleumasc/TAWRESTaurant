@@ -1,0 +1,32 @@
+{
+  "name": "tawrestaurant",
+  "version": "1.0.0",
+  "description": "MEAN app for the order management of an hypothetical restaurant",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "cd backend/ && npm install && cd - && cd angular-app/TAWRESTaurant/ && npm install && cd - && cd cordova-app/TAWRESTaurantMobile/ && npm install && cd - && cd electron-app/TAWRESTaurantDesktop/ && npm install && cd -",
+    "mongo": "cd backend/ && npm run mongo && cd -",
+    "build-web": "cd angular-app/TAWRESTaurant/ && ng build -c production && cd - && cd backend/ && npm run build && cd -",
+    "populate": "cd backend/ && npm run populate && cd -",
+    "start-web": "cd backend/ && npm run start && cd -",
+    "build-android": "cd angular-app/TAWRESTaurant/ && ng build -c cordova && cd - && cd cordova-app/TAWRESTaurantMobile/ && npm run clean-index && npm run build-android && cd -",
+    "start-android": "cd cordova-app/TAWRESTaurantMobile/ && npm run start-android && cd -",
+    "build-linux": "cd angular-app/TAWRESTaurant/ && ng build -c electron && cd - && cd electron-app/TAWRESTaurantDesktop/ && npm run clean-index && npm run build-linux && cd -",
+    "build-win32": "cd angular-app/TAWRESTaurant/ && ng build -c electron && cd - && cd electron-app/TAWRESTaurantDesktop/ && npm run clean-index && npm run build-win32 && cd -",
+    "start-desktop": "cd electron-app/TAWRESTaurantDesktop/ && npm run start && cd -"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eleumasc/TAWRESTaurant.git"
+  },
+  "author": "Battistich, Alvise; Casarin, Samuele",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eleumasc/TAWRESTaurant/issues"
+  },
+  "homepage": "https://github.com/eleumasc/TAWRESTaurant#readme"
+}

@@ -56,6 +56,13 @@
             </div></app-table-content
           >
         </ng-container>
+
+        <ng-container *ngIf="table.status === 'served'">
+          <app-table-content
+            [table]="table"
+            [show]="{ status: true }"
+          ></app-table-content>
+        </ng-container>
       </div>
     </ng-container>
   </ng-template>

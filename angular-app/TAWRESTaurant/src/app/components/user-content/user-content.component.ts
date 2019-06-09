@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
+import { User } from "src/app/models/User";
 
 @Component({
   selector: "app-user-content",
@@ -6,9 +7,9 @@ import { Component, OnInit, Input } from "@angular/core";
   styleUrls: ["./user-content.component.css"]
 })
 export class UserContentComponent implements OnInit {
-  @Input() user;
+  @Input() user: User;
 
-  @Input() show;
+  @Input() show: { stats?: boolean };
 
   constructor() {}
 
